@@ -57,6 +57,10 @@ export function AddProductDialog({ isOpen, onOpenChange, onProductAdd }: AddProd
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productSchema),
         defaultValues: {
+            name_en: "",
+            name_bn: "",
+            sku: "",
+            category: "",
             unit: 'pcs',
             stock_quantity: 0,
             selling_price: 0,
