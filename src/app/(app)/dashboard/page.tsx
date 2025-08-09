@@ -23,7 +23,7 @@ import { subDays, startOfMonth, endOfMonth, format, eachDayOfInterval, isWithinI
 import { orders, products } from "@/lib/data";
 
 export default function DashboardPage() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const dashboardRef = React.useRef(null);
   
   const [date, setDate] = React.useState<DateRange | undefined>({
@@ -107,7 +107,7 @@ export default function DashboardPage() {
       productsInStock: products.length.toString(),
       stockDesc: `${lowStockCount} ${t(translations.productsBelowThreshold)}`,
     }
-  }, [filteredOrders, previousOrders, products, t]);
+  }, [filteredOrders, previousOrders, products, t, language]);
   
   const salesChartData = React.useMemo(() => {
     if (!date?.from) return [];
@@ -160,8 +160,12 @@ export default function DashboardPage() {
   const recentSalesDescription = React.useMemo(() => {
     if (!date?.from) return "";
     const toDate = date.to ?? date.from;
-    return t(translations.recentSalesDesc)(filteredOrders.length, format(date.from, "LLL dd, y"), format(toDate, "LLL dd, y"));
-  }, [filteredOrders, date, t]);
+    const translationFunc = translations.recentSalesDesc[language];
+    if (typeof translationFunc === 'function') {
+      return translationFunc(filteredOrders.length, format(date.from, "LLL dd, y"), format(toDate, "LLL dd, y"));
+    }
+    return '';
+  }, [filteredOrders, date, language]);
 
   const handleDownload = () => {
     const input = dashboardRef.current;

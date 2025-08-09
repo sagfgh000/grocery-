@@ -5,9 +5,13 @@ import React, { createContext, useState, useContext, useEffect, type ReactNode }
 
 type Language = 'en' | 'bn';
 
-type TranslationFunction = <T extends string | ((...args: any[]) => string)>(
-  translations: { [key in Language]: T },
-  ...args: T extends (...args: any[]) => string ? Parameters<T> : []
+type TranslationValue = string | ((...args: any[]) => string);
+
+type TranslationObject = { [key in Language]: TranslationValue };
+
+type TranslationFunction = (
+  translations: TranslationObject,
+  ...args: any[]
 ) => string;
 
 interface LanguageContextType {
