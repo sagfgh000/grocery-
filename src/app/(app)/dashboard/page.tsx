@@ -26,10 +26,15 @@ export default function DashboardPage() {
   const { language, t } = useLanguage();
   const dashboardRef = React.useRef(null);
   
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: startOfMonth(new Date()),
-    to: endOfMonth(new Date()),
-  });
+  const [date, setDate] = React.useState<DateRange | undefined>();
+
+  React.useEffect(() => {
+    // Set initial date range on the client to avoid hydration mismatch
+    setDate({
+        from: startOfMonth(new Date()),
+        to: endOfMonth(new Date()),
+    });
+  }, []);
 
   const translations = {
     dashboard: { en: "Dashboard", bn: "ড্যাশবোর্ড" },
@@ -76,10 +81,23 @@ export default function DashboardPage() {
   }, [date]);
 
   const previousOrders = React.useMemo(() => {
+    if (!previousPeriod) return [];
     return orders.filter(order => isWithinInterval(order.createdAt, { start: previousPeriod.from, end: previousPeriod.to }));
   }, [previousPeriod]);
 
   const kpiData = React.useMemo(() => {
+    if (!date) {
+        return {
+            totalRevenue: formatCurrency(0),
+            revenueDesc: t(translations.noChange),
+            totalProfit: formatCurrency(0),
+            profitDesc: t(translations.calculatedForPeriod),
+            sales: "+0",
+            salesDesc: `0 ${t(translations.ordersInPeriod)}`,
+            productsInStock: products.length.toString(),
+            stockDesc: `0 ${t(translations.productsBelowThreshold)}`,
+        }
+    }
     const currentRevenue = filteredOrders.reduce((sum, order) => sum + order.total, 0);
     const currentProfit = filteredOrders.reduce((sum, order) => sum + order.totalProfit, 0);
     const currentSalesCount = filteredOrders.length;
@@ -107,7 +125,7 @@ export default function DashboardPage() {
       productsInStock: products.length.toString(),
       stockDesc: `${lowStockCount} ${t(translations.productsBelowThreshold)}`,
     }
-  }, [filteredOrders, previousOrders, products, t, language]);
+  }, [filteredOrders, previousOrders, products, t, language, date]);
   
   const salesChartData = React.useMemo(() => {
     if (!date?.from) return [];
@@ -139,7 +157,7 @@ export default function DashboardPage() {
   }, [filteredOrders, date]);
 
   const categoryChartData = React.useMemo(() => {
-    const categoryRevenue: {[key: string]: { category: string, revenue: number, fill: string }} = {};
+    const categoryRevenue: {[key: string]: { category: string; revenue: number; fill: string }} = {};
     const colors = ['#f56565', '#48bb78', '#4299e1', '#ed8936', '#a0aec0', '#9f7aea', '#f6e05e'];
     let colorIndex = 0;
 
