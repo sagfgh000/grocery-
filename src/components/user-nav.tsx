@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,8 +12,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLanguage } from "@/context/language-context";
 
 export function UserNav() {
+  const { t } = useLanguage();
+
+  const translations = {
+      admin: { en: "Admin", bn: "অ্যাডমিন" },
+      profile: { en: "Profile", bn: "প্রোফাইল" },
+      billing: { en: "Billing", bn: "বিলিং" },
+      settings: { en: "Settings", bn: "সেটিংস" },
+      logout: { en: "Log out", bn: "লগ আউট" },
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -23,7 +35,7 @@ export function UserNav() {
           </Avatar>
           <div className="text-left">
               <p className="text-sm font-medium">Jane Doe</p>
-              <p className="text-xs text-muted-foreground">Admin</p>
+              <p className="text-xs text-muted-foreground">{t(translations.admin)}</p>
           </div>
         </Button>
       </DropdownMenuTrigger>
@@ -38,12 +50,12 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Billing</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuItem>{t(translations.profile)}</DropdownMenuItem>
+          <DropdownMenuItem>{t(translations.billing)}</DropdownMenuItem>
+          <DropdownMenuItem>{t(translations.settings)}</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Log out</DropdownMenuItem>
+        <DropdownMenuItem>{t(translations.logout)}</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

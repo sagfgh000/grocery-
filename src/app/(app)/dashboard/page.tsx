@@ -21,7 +21,6 @@ import { useLanguage } from "@/context/language-context";
 import { DateRange } from "react-day-picker";
 import { subDays, startOfMonth, endOfMonth, format, eachDayOfInterval, isWithinInterval } from "date-fns";
 import { orders, products } from "@/lib/data";
-import { Order } from "@/lib/types";
 
 export default function DashboardPage() {
   const { t } = useLanguage();
@@ -46,6 +45,15 @@ export default function DashboardPage() {
     topCategories: { en: "Top Categories", bn: "শীর্ষ বিভাগ" },
     topCategoriesDesc: { en: "Revenue by product category for the selected period.", bn: "নির্বাচিত সময়ের জন্য পণ্যের বিভাগ অনুসারে আয়।" },
     recentSales: { en: "Recent Sales", bn: "সাম্প্রতিক বিক্রয়" },
+    fromPreviousPeriod: { en: "from previous period", bn: "পূর্ববর্তী সময়ের থেকে" },
+    noChange: { en: "no change from previous period", bn: "পূর্ববর্তী সময়ের থেকে কোন পরিবর্তন নেই" },
+    calculatedForPeriod: { en: "Calculated from selected period", bn: "নির্বাচিত সময় থেকে গণনা করা হয়েছে" },
+    ordersInPeriod: { en: "orders in selected period", bn: "নির্বাচিত সময়ে অর্ডার" },
+    productsBelowThreshold: { en: "products below threshold", bn: "থ্রেশহোল্ডের নিচে পণ্য" },
+    recentSalesDesc: { 
+      en: (count: number, from: string, to: string) => `You made ${count} sales between ${from} and ${to}.`,
+      bn: (count: number, from: string, to: string) => `আপনি ${from} থেকে ${to} এর মধ্যে ${count}টি বিক্রয় করেছেন।`,
+    },
   };
 
   const formatCurrency = (amount: number) => {
@@ -53,11 +61,9 @@ export default function DashboardPage() {
   }
 
   const filteredOrders = React.useMemo(() => {
-    return orders.filter(order => {
-      if (!date?.from) return true;
-      const toDate = date.to ?? date.from;
-      return isWithinInterval(order.createdAt, { start: date.from, end: toDate });
-    });
+    if (!date?.from) return [];
+    const toDate = date.to ?? date.from;
+    return orders.filter(order => isWithinInterval(order.createdAt, { start: date.from!, end: toDate }));
   }, [date]);
 
   const previousPeriod = React.useMemo(() => {
@@ -70,9 +76,7 @@ export default function DashboardPage() {
   }, [date]);
 
   const previousOrders = React.useMemo(() => {
-    return orders.filter(order => {
-      return isWithinInterval(order.createdAt, { start: previousPeriod.from, end: previousPeriod.to });
-    });
+    return orders.filter(order => isWithinInterval(order.createdAt, { start: previousPeriod.from, end: previousPeriod.to }));
   }, [previousPeriod]);
 
   const kpiData = React.useMemo(() => {
@@ -85,22 +89,25 @@ export default function DashboardPage() {
     const revenueChange = prevRevenue > 0 ? ((currentRevenue - prevRevenue) / prevRevenue) * 100 : currentRevenue > 0 ? 100 : 0;
     
     const getChangeDescription = (change: number) => {
-        if (change === 0) return `no change from previous period`;
+        if (change === 0) return t(translations.noChange);
         const sign = change > 0 ? '+' : '';
-        return `<span class="${change > 0 ? 'text-green-600' : 'text-red-600'}">${sign}${change.toFixed(1)}%</span> from previous period`;
+        const color = change > 0 ? 'text-green-600' : 'text-red-600';
+        return `<span class="${color}">${sign}${change.toFixed(1)}%</span> ${t(translations.fromPreviousPeriod)}`;
     }
+    
+    const lowStockCount = products.filter(p => p.stock_quantity < p.low_stock_threshold).length;
 
     return {
       totalRevenue: formatCurrency(currentRevenue),
       revenueDesc: getChangeDescription(revenueChange),
       totalProfit: formatCurrency(currentProfit),
-      profitDesc: "Calculated from selected period",
+      profitDesc: t(translations.calculatedForPeriod),
       sales: `+${currentSalesCount}`,
-      salesDesc: `${filteredOrders.length} orders in selected period`,
+      salesDesc: `${filteredOrders.length} ${t(translations.ordersInPeriod)}`,
       productsInStock: products.length.toString(),
-      stockDesc: `${products.filter(p => p.stock_quantity < p.low_stock_threshold).length} products below threshold`,
+      stockDesc: `${lowStockCount} ${t(translations.productsBelowThreshold)}`,
     }
-  }, [filteredOrders, previousOrders, products]);
+  }, [filteredOrders, previousOrders, products, t]);
   
   const salesChartData = React.useMemo(() => {
     if (!date?.from) return [];
@@ -153,13 +160,13 @@ export default function DashboardPage() {
   const recentSalesDescription = React.useMemo(() => {
     if (!date?.from) return "";
     const toDate = date.to ?? date.from;
-    return `You made ${filteredOrders.length} sales between ${format(date.from, "LLL dd, y")} and ${format(toDate, "LLL dd, y")}.`;
-  }, [filteredOrders, date]);
+    return t(translations.recentSalesDesc)(filteredOrders.length, format(date.from, "LLL dd, y"), format(toDate, "LLL dd, y"));
+  }, [filteredOrders, date, t]);
 
   const handleDownload = () => {
     const input = dashboardRef.current;
     if (input) {
-      html2canvas(input, { scale: 2 }).then((canvas) => {
+      html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF({
           orientation: 'landscape',

@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -17,7 +18,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Receipt } from "./receipt";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -28,11 +28,27 @@ export function PosTerminal() {
   const [cart, setCart] = React.useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = React.useState("");
   const { toast } = useToast();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [isReceiptOpen, setReceiptOpen] = React.useState(false);
   const [lastOrder, setLastOrder] = React.useState<any>(null);
   const isMobile = useIsMobile();
 
+  const translations = {
+    products: { en: "Products", bn: "পণ্য" },
+    searchPlaceholder: { en: "Search products...", bn: "পণ্য খুঁজুন..." },
+    currentOrder: { en: "Current Order", bn: "বর্তমান অর্ডার" },
+    cartEmpty: { en: "Your cart is empty.", bn: "আপনার কার্ট খালি।" },
+    profit: { en: "Profit", bn: "লাভ" },
+    subtotal: { en: "Subtotal", bn: "উপমোট" },
+    tax: { en: "Tax (5%)", bn: "কর (৫%)" },
+    estimatedProfit: { en: "Estimated Profit", bn: "আনুমানিক লাভ" },
+    total: { en: "Total", bn: "মোট" },
+    checkout: { en: "Checkout", bn: "চেকআউট" },
+    receipt: { en: "Receipt", bn: "রসিদ" },
+    cartEmptyTitle: { en: "Cart is empty", bn: "কার্ট খালি" },
+    cartEmptyDesc: { en: "Please add products to the cart before checkout.", bn: "চেকআউটের আগে দয়া করে কার্টে পণ্য যোগ করুন।" },
+    addedToCart: { en: (product: string) => `${product} added to cart.`, bn: (product: string) => `${product} কার্টে যোগ করা হয়েছে।` },
+  };
 
   const filteredProducts = products.filter(
     (product) =>
@@ -64,7 +80,7 @@ export function PosTerminal() {
       }
     });
     toast({
-      title: `${language === 'bn' ? product.name_bn : product.name_en} কার্টে যোগ করা হয়েছে।`,
+      title: t(translations.addedToCart)(language === 'bn' ? product.name_bn : product.name_en),
     });
   };
 
@@ -95,8 +111,8 @@ export function PosTerminal() {
   const handleCheckout = () => {
     if(cart.length === 0) {
       toast({
-        title: "কার্ট খালি",
-        description: "চেকআউটের আগে দয়া করে কার্টে পণ্য যোগ করুন।",
+        title: t(translations.cartEmptyTitle),
+        description: t(translations.cartEmptyDesc),
         variant: "destructive",
       })
       return;
@@ -132,11 +148,11 @@ export function PosTerminal() {
     <div className="grid grid-cols-1 lg:grid-cols-3 h-full">
       <div className="lg:col-span-2 h-full flex flex-col p-4 bg-background">
         <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
-            <h2 className="text-2xl font-bold tracking-tight font-headline">পণ্য</h2>
+            <h2 className="text-2xl font-bold tracking-tight font-headline">{t(translations.products)}</h2>
             <div className="relative w-full max-w-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                    placeholder="পণ্য খুঁজুন..."
+                    placeholder={t(translations.searchPlaceholder)}
                     className="pl-8"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -167,12 +183,12 @@ export function PosTerminal() {
       <div className="col-span-1 h-full flex flex-col p-4 bg-card border-l">
         <Card className="flex-1 flex flex-col">
             <CardHeader>
-                <CardTitle>বর্তমান অর্ডার</CardTitle>
+                <CardTitle>{t(translations.currentOrder)}</CardTitle>
             </CardHeader>
             <ScrollArea className="flex-1">
                 <CardContent className="space-y-4">
                 {cart.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-10">আপনার কার্ট খালি।</p>
+                    <p className="text-center text-muted-foreground py-10">{t(translations.cartEmpty)}</p>
                 ) : (
                     cart.map((item) => (
                     <div key={item.product.id} className="flex items-center gap-4">
@@ -192,7 +208,7 @@ export function PosTerminal() {
                         </div>
                         <div className="text-right">
                           <p className="font-semibold">{formatCurrency(item.subtotal)}</p>
-                          <p className="text-xs text-green-600">লাভ: {formatCurrency(item.profit)}</p>
+                          <p className="text-xs text-green-600">{t(translations.profit)}: {formatCurrency(item.profit)}</p>
                         </div>
                         <Button size="icon" variant="ghost" className="text-muted-foreground" onClick={() => removeFromCart(item.product.id)}>
                         <X className="h-4 w-4" />
@@ -205,20 +221,20 @@ export function PosTerminal() {
             <div className="p-6 border-t">
                 <div className="space-y-2">
                     <div className="flex justify-between">
-                        <span>উপমোট</span>
+                        <span>{t(translations.subtotal)}</span>
                         <span>{formatCurrency(cartSubtotal)}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span>কর (৫%)</span>
+                        <span>{t(translations.tax)}</span>
                         <span>{formatCurrency(tax)}</span>
                     </div>
                     <div className="flex justify-between text-green-600">
-                        <span>আনুমানিক লাভ</span>
+                        <span>{t(translations.estimatedProfit)}</span>
                         <span>{formatCurrency(totalProfit)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between font-bold text-lg">
-                        <span>মোট</span>
+                        <span>{t(translations.total)}</span>
                         <span>{formatCurrency(total)}</span>
                     </div>
                 </div>
@@ -226,13 +242,13 @@ export function PosTerminal() {
                 <ReceiptDialog open={isReceiptOpen} onOpenChange={setReceiptOpen}>
                     <ReceiptDialogTrigger asChild>
                         <Button size="lg" className="w-full mt-6" onClick={handleCheckout}>
-                        চেকআউট
+                        {t(translations.checkout)}
                         </Button>
                     </ReceiptDialogTrigger>
                     {lastOrder && (
                         <ReceiptDialogContent className="max-w-sm">
                             <ReceiptDialogHeader>
-                                <ReceiptDialogTitle>রসিদ</ReceiptDialogTitle>
+                                <ReceiptDialogTitle>{t(translations.receipt)}</ReceiptDialogTitle>
                             </ReceiptDialogHeader>
                             <Receipt order={lastOrder} />
                         </ReceiptDialogContent>

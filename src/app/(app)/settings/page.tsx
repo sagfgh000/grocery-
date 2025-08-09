@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -14,10 +15,23 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useSettings } from "@/context/settings-context";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/context/language-context";
 
 export default function SettingsPage() {
   const { settings, setSettings } = useSettings();
   const { toast } = useToast();
+  const { t } = useLanguage();
+
+  const translations = {
+      settings: { en: "Settings", bn: "সেটিংস" },
+      shopDetails: { en: "Shop Details", bn: "দোকানের বিবরণ" },
+      shopDetailsDesc: { en: "Update your shop's name and address.", bn: "আপনার দোকানের নাম এবং ঠিকানা আপডেট করুন।" },
+      shopName: { en: "Shop Name", bn: "দোকানের নাম" },
+      address: { en: "Address", bn: "ঠিকানা" },
+      save: { en: "Save", bn: "সংরক্ষণ করুন" },
+      shopDetailsSaved: { en: "Shop Details Saved", bn: "দোকানের বিবরণ সংরক্ষিত হয়েছে" },
+      shopDetailsUpdated: { en: "Your shop name and address have been updated.", bn: "আপনার দোকানের নাম এবং ঠিকানা আপডেট করা হয়েছে।" },
+  };
 
   const handleShopDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -25,80 +39,36 @@ export default function SettingsPage() {
   }
   
   const handleSaveShopDetails = () => {
-    // In a real app, you'd save this to a backend.
-    // Here we just show a toast notification.
     toast({
-      title: "Shop Details Saved",
-      description: "Your shop name and address have been updated.",
+      title: t(translations.shopDetailsSaved),
+      description: t(translations.shopDetailsUpdated),
     });
   }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <h2 className="text-3xl font-bold tracking-tight font-headline">Settings</h2>
+      <h2 className="text-3xl font-bold tracking-tight font-headline">{t(translations.settings)}</h2>
       
       <Separator />
 
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Shop Details</CardTitle>
-            <CardDescription>
-              Update your shop's name and address.
-            </CardDescription>
+            <CardTitle>{t(translations.shopDetails)}</CardTitle>
+            <CardDescription>{t(translations.shopDetailsDesc)}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="shopName">Shop Name</Label>
+              <Label htmlFor="shopName">{t(translations.shopName)}</Label>
               <Input id="shopName" value={settings.shopName} onChange={handleShopDetailsChange} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="shopAddress">Address</Label>
+              <Label htmlFor="shopAddress">{t(translations.address)}</Label>
               <Input id="shopAddress" value={settings.shopAddress} onChange={handleShopDetailsChange} />
             </div>
           </CardContent>
           <CardFooter>
-            <Button onClick={handleSaveShopDetails}>Save</Button>
-          </CardFooter>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Financials</CardTitle>
-            <CardDescription>
-              Configure currency and tax settings.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
-              <Input id="currency" defaultValue="BDT" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tax-rate">Tax Rate (%)</Label>
-              <Input id="tax-rate" type="number" defaultValue="5" />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button>Save</Button>
-          </CardFooter>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Inventory</CardTitle>
-            <CardDescription>
-              Set default values for inventory management.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="low-stock-threshold">Low Stock Threshold</Label>
-                <Input id="low-stock-threshold" type="number" defaultValue="10" />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button>Save</Button>
+            <Button onClick={handleSaveShopDetails}>{t(translations.save)}</Button>
           </CardFooter>
         </Card>
       </div>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -17,25 +18,38 @@ import { PlusCircle, Search } from "lucide-react";
 import { type Product } from "@/lib/types";
 import { useLanguage } from "@/context/language-context";
 import { AddProductDialog } from "./add-product-dialog";
-import { products as initialProducts } from "@/lib/data";
 
 interface ProductTableProps {
   data: Product[];
+  onProductAdd: (product: Product) => void;
 }
 
-export function ProductTable({ data }: ProductTableProps) {
-  const [products, setProducts] = React.useState(initialProducts);
-  const [filteredData, setFilteredData] = React.useState(products);
+export function ProductTable({ data, onProductAdd }: ProductTableProps) {
+  const [filteredData, setFilteredData] = React.useState(data);
   const { language, t } = useLanguage();
   const [isAddDialogOpen, setAddDialogOpen] = React.useState(false);
 
   React.useEffect(() => {
-    setFilteredData(products);
-  }, [products]);
+    setFilteredData(data);
+  }, [data]);
+
+  const translations = {
+    searchPlaceholder: { en: "Search products...", bn: "পণ্য খুঁজুন..." },
+    addProduct: { en: "Add Product", bn: "পণ্য যোগ করুন" },
+    image: { en: "Image", bn: "ছবি" },
+    productName: { en: "Product Name", bn: "পণ্যের নাম" },
+    category: { en: "Category", bn: "বিভাগ" },
+    stock: { en: "Stock", bn: "স্টক" },
+    price: { en: "Price", bn: "মূল্য" },
+    profitPerUnit: { en: "Profit/Unit", bn: "লাভ/একক" },
+    inStock: { en: "In Stock", bn: "স্টকে আছে" },
+    lowStock: { en: "Low Stock", bn: "কম স্টক" },
+    outOfStock: { en: "Out of Stock", bn: "স্টক আউট" },
+  };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value.toLowerCase();
-    const filtered = products.filter(
+    const filtered = data.filter(
       (product) =>
         product.name_en.toLowerCase().includes(searchTerm) ||
         product.name_bn.toLowerCase().includes(searchTerm) ||
@@ -45,33 +59,16 @@ export function ProductTable({ data }: ProductTableProps) {
     setFilteredData(filtered);
   };
 
-  const handleAddProduct = (newProduct: Product) => {
-    setProducts(prevProducts => [...prevProducts, newProduct]);
-  }
-
   const getStockBadgeVariant = (stock: number, threshold: number) => {
     if (stock === 0) return "destructive";
     if (stock < threshold) return "secondary";
     return "default";
   };
-  
-  const stockLabels = {
-    en: {
-      inStock: "In Stock",
-      lowStock: "Low Stock",
-      outOfStock: "Out of Stock",
-    },
-    bn: {
-      inStock: "স্টকে আছে",
-      lowStock: "কম স্টক",
-      outOfStock: "স্টক আউট",
-    }
-  }
 
   const getStockLabel = (stock: number, threshold: number) => {
-    if (stock === 0) return t(stockLabels).outOfStock;
-    if (stock < threshold) return t(stockLabels).lowStock;
-    return t(stockLabels).inStock;
+    if (stock === 0) return t(translations.outOfStock);
+    if (stock < threshold) return t(translations.lowStock);
+    return t(translations.inStock);
   };
 
   const formatCurrency = (amount: number) => {
@@ -85,20 +82,20 @@ export function ProductTable({ data }: ProductTableProps) {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="পণ্য খুঁজুন..."
+            placeholder={t(translations.searchPlaceholder)}
             className="pl-8"
             onChange={handleSearch}
           />
         </div>
         <Button className="w-full sm:w-auto" onClick={() => setAddDialogOpen(true)}>
-          <PlusCircle className="mr-2 h-4 w-4" /> পণ্য যোগ করুন
+          <PlusCircle className="mr-2 h-4 w-4" /> {t(translations.addProduct)}
         </Button>
       </div>
 
       <AddProductDialog 
         isOpen={isAddDialogOpen}
         onOpenChange={setAddDialogOpen}
-        onProductAdd={handleAddProduct}
+        onProductAdd={onProductAdd}
       />
 
       <div className="rounded-md border">
@@ -106,12 +103,12 @@ export function ProductTable({ data }: ProductTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[80px] sticky left-0 bg-card">Image</TableHead>
-                <TableHead>Product Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead className="text-right">Profit/Unit</TableHead>
+                <TableHead className="w-[80px] sticky left-0 bg-card">{t(translations.image)}</TableHead>
+                <TableHead>{t(translations.productName)}</TableHead>
+                <TableHead>{t(translations.category)}</TableHead>
+                <TableHead>{t(translations.stock)}</TableHead>
+                <TableHead className="text-right">{t(translations.price)}</TableHead>
+                <TableHead className="text-right">{t(translations.profitPerUnit)}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -140,7 +137,7 @@ export function ProductTable({ data }: ProductTableProps) {
                       </div>
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap">{formatCurrency(product.selling_price)}</TableCell>
-                  <TableCell className="text-right whitespace-nowrap">{formatCurrency(product.selling_price - product.buying_price)}</TableCell>
+                  <TableCell className="text-right text-green-600 whitespace-nowrap">{formatCurrency(product.selling_price - product.buying_price)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
