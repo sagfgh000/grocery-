@@ -68,7 +68,7 @@ export function ProductTable({ data }: ProductTableProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -78,53 +78,55 @@ export function ProductTable({ data }: ProductTableProps) {
             onChange={handleSearch}
           />
         </div>
-        <Button>
+        <Button className="w-full sm:w-auto">
           <PlusCircle className="mr-2 h-4 w-4" /> পণ্য যোগ করুন
         </Button>
       </div>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[80px]">Image</TableHead>
-              <TableHead>Product Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Stock</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">Profit/Unit</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData.map((product) => (
-              <TableRow key={product.id}>
-                <TableCell>
-                  <Image
-                    src={product.imageUrl || "https://placehold.co/64x64.png"}
-                    alt={product.name_en}
-                    width={64}
-                    height={64}
-                    className="rounded-md object-cover"
-                  />
-                </TableCell>
-                <TableCell className="font-medium">
-                  <div>{language === 'bn' ? product.name_bn : product.name_en}</div>
-                  <div className="text-sm text-muted-foreground">{product.sku}</div>
-                </TableCell>
-                <TableCell>{product.category}</TableCell>
-                <TableCell>
-                    <Badge variant={getStockBadgeVariant(product.stock_quantity, product.low_stock_threshold)}>
-                        {product.stock_quantity} {product.unit}
-                    </Badge>
-                    <div className="text-xs text-muted-foreground mt-1">
-                        {getStockLabel(product.stock_quantity, product.low_stock_threshold)}
-                    </div>
-                </TableCell>
-                <TableCell className="text-right">{formatCurrency(product.selling_price)}</TableCell>
-                <TableCell className="text-right">{formatCurrency(product.selling_price - product.buying_price)}</TableCell>
+        <div className="relative w-full overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[80px] sticky left-0 bg-card">Image</TableHead>
+                <TableHead>Product Name</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Stock</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead className="text-right">Profit/Unit</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredData.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell className="sticky left-0 bg-card">
+                    <Image
+                      src={product.imageUrl || "https://placehold.co/64x64.png"}
+                      alt={product.name_en}
+                      width={64}
+                      height={64}
+                      className="rounded-md object-cover"
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium whitespace-nowrap">
+                    <div>{language === 'bn' ? product.name_bn : product.name_en}</div>
+                    <div className="text-sm text-muted-foreground">{product.sku}</div>
+                  </TableCell>
+                  <TableCell>{product.category}</TableCell>
+                  <TableCell>
+                      <Badge variant={getStockBadgeVariant(product.stock_quantity, product.low_stock_threshold)}>
+                          {product.stock_quantity} {product.unit}
+                      </Badge>
+                      <div className="text-xs text-muted-foreground mt-1 whitespace-nowrap">
+                          {getStockLabel(product.stock_quantity, product.low_stock_threshold)}
+                      </div>
+                  </TableCell>
+                  <TableCell className="text-right whitespace-nowrap">{formatCurrency(product.selling_price)}</TableCell>
+                  <TableCell className="text-right whitespace-nowrap">{formatCurrency(product.selling_price - product.buying_price)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

@@ -20,10 +20,11 @@ import {
                 <h2 className="text-3xl font-bold tracking-tight font-headline">Orders</h2>
             </div>
             <div className="rounded-md border">
+              <div className="relative w-full overflow-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Order ID</TableHead>
+                            <TableHead className="sticky left-0 bg-card">Order ID</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Payment Method</TableHead>
                             <TableHead className="text-right">Total Amount</TableHead>
@@ -33,17 +34,18 @@ import {
                     <TableBody>
                         {orders.map((order) => (
                             <TableRow key={order.id}>
-                                <TableCell className="font-medium">{order.id}</TableCell>
-                                <TableCell>{order.createdAt.toLocaleDateString('bn-BD')}</TableCell>
+                                <TableCell className="font-medium sticky left-0 bg-card whitespace-nowrap">{order.id}</TableCell>
+                                <TableCell className="whitespace-nowrap">{order.createdAt.toLocaleDateString('bn-BD')}</TableCell>
                                 <TableCell>
                                     <Badge variant="outline">{order.paymentMethod}</Badge>
                                 </TableCell>
-                                <TableCell className="text-right">{formatCurrency(order.total)}</TableCell>
-                                <TableCell className="text-right text-green-600">{formatCurrency(order.totalProfit)}</TableCell>
+                                <TableCell className="text-right whitespace-nowrap">{formatCurrency(order.total)}</TableCell>
+                                <TableCell className="text-right text-green-600 whitespace-nowrap">{formatCurrency(order.totalProfit)}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
+              </div>
             </div>
         </div>
     )

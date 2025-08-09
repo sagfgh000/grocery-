@@ -20,6 +20,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Receipt } from "./receipt";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 
 
 export function PosTerminal() {
@@ -29,6 +31,7 @@ export function PosTerminal() {
   const { language } = useLanguage();
   const [isReceiptOpen, setReceiptOpen] = React.useState(false);
   const [lastOrder, setLastOrder] = React.useState<any>(null);
+  const isMobile = useIsMobile();
 
 
   const filteredProducts = products.filter(
@@ -119,10 +122,16 @@ export function PosTerminal() {
     return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
   }
 
+  const ReceiptDialog = isMobile ? Drawer : Dialog;
+  const ReceiptDialogTrigger = isMobile ? DrawerTrigger : DialogTrigger;
+  const ReceiptDialogContent = isMobile ? DrawerContent : DialogContent;
+  const ReceiptDialogHeader = isMobile ? DrawerHeader : DialogHeader;
+  const ReceiptDialogTitle = isMobile ? DrawerTitle : DialogTitle;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 h-full">
       <div className="lg:col-span-2 h-full flex flex-col p-4 bg-background">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
             <h2 className="text-2xl font-bold tracking-tight font-headline">পণ্য</h2>
             <div className="relative w-full max-w-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -169,14 +178,14 @@ export function PosTerminal() {
                     <div key={item.product.id} className="flex items-center gap-4">
                         <Image src={item.product.imageUrl || 'https://placehold.co/64x64.png'} alt={item.product.name_en} width={64} height={64} className="rounded-md" />
                         <div className="flex-1">
-                        <p className="font-medium">{language === 'bn' ? item.product.name_bn : item.product.name_en}</p>
+                        <p className="font-medium text-sm sm:text-base">{language === 'bn' ? item.product.name_bn : item.product.name_en}</p>
                         <p className="text-sm text-muted-foreground">{formatCurrency(item.product.selling_price)}</p>
                         <div className="flex items-center gap-2 mt-1">
-                            <Button size="icon" variant="outline" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}>
+                            <Button size="icon" variant="outline" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}>
                             <Minus className="h-4 w-4" />
                             </Button>
                             <span>{item.quantity}</span>
-                            <Button size="icon" variant="outline" onClick={() => updateQuantity(item.product.id, item.quantity + 1)}>
+                            <Button size="icon" variant="outline" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => updateQuantity(item.product.id, item.quantity + 1)}>
                             <Plus className="h-4 w-4" />
                             </Button>
                         </div>
@@ -214,21 +223,21 @@ export function PosTerminal() {
                     </div>
                 </div>
                 
-                <Dialog open={isReceiptOpen} onOpenChange={setReceiptOpen}>
-                    <DialogTrigger asChild>
+                <ReceiptDialog open={isReceiptOpen} onOpenChange={setReceiptOpen}>
+                    <ReceiptDialogTrigger asChild>
                         <Button size="lg" className="w-full mt-6" onClick={handleCheckout}>
                         চেকআউট
                         </Button>
-                    </DialogTrigger>
+                    </ReceiptDialogTrigger>
                     {lastOrder && (
-                        <DialogContent className="max-w-sm">
-                            <DialogHeader>
-                                <DialogTitle>রসিদ</DialogTitle>
-                            </DialogHeader>
+                        <ReceiptDialogContent className="max-w-sm">
+                            <ReceiptDialogHeader>
+                                <ReceiptDialogTitle>রসিদ</ReceiptDialogTitle>
+                            </ReceiptDialogHeader>
                             <Receipt order={lastOrder} />
-                        </DialogContent>
+                        </ReceiptDialogContent>
                     )}
-                </Dialog>
+                </ReceiptDialog>
             </div>
         </Card>
       </div>
