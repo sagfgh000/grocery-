@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { type Order } from "@/lib/types";
 import { useLanguage } from "@/context/language-context";
 import { Download, Printer } from "lucide-react";
+import { useSettings } from "@/context/settings-context";
 
 interface ReceiptProps {
   order: Order;
@@ -15,6 +16,7 @@ interface ReceiptProps {
 
 export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }, ref) => {
   const { language } = useLanguage();
+  const { settings } = useSettings();
   const receiptRef = useRef<HTMLDivElement>(null);
   
   const handlePrint = () => {
@@ -57,8 +59,8 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
     <div className="bg-white text-black p-4 font-mono text-sm" ref={ref}>
         <div id="printable-receipt" ref={receiptRef} className="p-4 bg-white">
             <div className="text-center mb-4">
-                <h2 className="text-xl font-bold">GrocerEase</h2>
-                <p>123 Fresh St, Farmville, USA</p>
+                <h2 className="text-xl font-bold">{settings.shopName}</h2>
+                <p>{settings.shopAddress}</p>
                 <p>Order ID: {order.id}</p>
                 <p>Date: {order.createdAt.toLocaleString('bn-BD')}</p>
             </div>

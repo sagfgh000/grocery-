@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,8 +12,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useSettings } from "@/context/settings-context";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SettingsPage() {
+  const { settings, setSettings } = useSettings();
+  const { toast } = useToast();
+
+  const handleShopDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setSettings(prev => ({...prev, [id]: value}));
+  }
+  
+  const handleSaveShopDetails = () => {
+    // In a real app, you'd save this to a backend.
+    // Here we just show a toast notification.
+    toast({
+      title: "Shop Details Saved",
+      description: "Your shop name and address have been updated.",
+    });
+  }
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <h2 className="text-3xl font-bold tracking-tight font-headline">Settings</h2>
@@ -28,16 +49,16 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="shop-name">Shop Name</Label>
-              <Input id="shop-name" defaultValue="GrocerEase" />
+              <Label htmlFor="shopName">Shop Name</Label>
+              <Input id="shopName" value={settings.shopName} onChange={handleShopDetailsChange} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="shop-address">Address</Label>
-              <Input id="shop-address" defaultValue="123 Fresh St, Farmville, USA" />
+              <Label htmlFor="shopAddress">Address</Label>
+              <Input id="shopAddress" value={settings.shopAddress} onChange={handleShopDetailsChange} />
             </div>
           </CardContent>
           <CardFooter>
-            <Button>Save</Button>
+            <Button onClick={handleSaveShopDetails}>Save</Button>
           </CardFooter>
         </Card>
 
