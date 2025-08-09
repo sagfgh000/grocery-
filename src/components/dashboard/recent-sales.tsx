@@ -3,31 +3,43 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Order } from "@/lib/types";
 
-const salesData = [
-    { name: "Olivia Martin", email: "olivia.martin@email.com", amount: "+৳১,৯৯৯.০০", avatar: "OM" },
-    { name: "Jackson Lee", email: "jackson.lee@email.com", amount: "+৳৩৯.০০", avatar: "JL" },
-    { name: "Isabella Nguyen", email: "isabella.nguyen@email.com", amount: "+৳২৯৯.০০", avatar: "IN" },
-    { name: "William Kim", email: "will@email.com", amount: "+৳৯৯.০০", avatar: "WK" },
-    { name: "Sofia Davis", email: "sofia.davis@email.com", amount: "+৳৩৯.০০", avatar: "SD" },
-];
+interface RecentSalesProps {
+    orders: Order[];
+    title: string;
+    description: string;
+}
 
-export function RecentSales() {
+export function RecentSales({ orders, title, description }: RecentSalesProps) {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
+  }
+  
   return (
-    <div className="space-y-8">
-      {salesData.map((sale) => (
-        <div className="flex items-center" key={sale.email}>
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={`https://placehold.co/40x40.png?text=${sale.avatar}`} alt="Avatar" />
-            <AvatarFallback>{sale.avatar}</AvatarFallback>
-          </Avatar>
-          <div className="ml-4 space-y-1">
-            <p className="text-sm font-medium leading-none">{sale.name}</p>
-            <p className="text-sm text-muted-foreground">{sale.email}</p>
-          </div>
-          <div className="ml-auto font-medium">{sale.amount}</div>
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-8">
+          {orders.slice(0, 5).map((order) => (
+            <div className="flex items-center" key={order.id}>
+              <Avatar className="h-9 w-9">
+                <AvatarImage src={`https://placehold.co/40x40.png?text=C`} alt="Avatar" />
+                <AvatarFallback>C</AvatarFallback>
+              </Avatar>
+              <div className="ml-4 space-y-1">
+                <p className="text-sm font-medium leading-none">Customer</p>
+                <p className="text-sm text-muted-foreground">{order.id}</p>
+              </div>
+              <div className="ml-auto font-medium">{formatCurrency(order.total)}</div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      </CardContent>
+    </Card>
   )
 }

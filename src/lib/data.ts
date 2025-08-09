@@ -1,4 +1,4 @@
-import type { Product, Order } from './types';
+import type { Product, Order, CartItem } from './types';
 
 export const products: Product[] = [
   {
@@ -107,35 +107,61 @@ export const products: Product[] = [
   },
 ];
 
-export const orders: Order[] = [
-    {
-        id: 'ORD-001',
-        items: [
-            { product: products[0], quantity: 2, subtotal: 500, profit: 140 },
-            { product: products[2], quantity: 1, subtotal: 80, profit: 30 },
-        ],
-        subtotal: 580,
-        tax: 29,
-        discount: 0,
-        total: 609,
-        totalProfit: 170,
-        paymentMethod: 'cash',
-        cashierId: 'cashier_01',
-        createdAt: new Date(new Date().setDate(new Date().getDate() - 1)),
-    },
-    {
-        id: 'ORD-002',
-        items: [
-            { product: products[3], quantity: 1.5, subtotal: 675, profit: 150 },
-            { product: products[4], quantity: 3, subtotal: 180, profit: 60 },
-        ],
-        subtotal: 855,
-        tax: 42.75,
-        discount: 50,
-        total: 847.75,
-        totalProfit: 210,
-        paymentMethod: 'card',
-        cashierId: 'cashier_02',
-        createdAt: new Date(),
+const generateRandomOrder = (id: number, date: Date): Order => {
+  const orderItems: CartItem[] = [];
+  const numItems = Math.floor(Math.random() * 5) + 1;
+  let subtotal = 0;
+  let totalProfit = 0;
+
+  for (let i = 0; i < numItems; i++) {
+    const product = products[Math.floor(Math.random() * products.length)];
+    const quantity = product.unit === 'pcs' ? Math.floor(Math.random() * 5) + 1 : parseFloat((Math.random() * 2 + 0.5).toFixed(2));
+    const itemSubtotal = product.selling_price * quantity;
+    const itemProfit = (product.selling_price - product.buying_price) * quantity;
+    
+    orderItems.push({
+      product,
+      quantity,
+      subtotal: itemSubtotal,
+      profit: itemProfit
+    });
+
+    subtotal += itemSubtotal;
+    totalProfit += itemProfit;
+  }
+
+  const tax = subtotal * 0.05;
+  const total = subtotal + tax;
+  const paymentMethods: ('cash' | 'mobile-pay' | 'card')[] = ['cash', 'card', 'mobile-pay'];
+
+  return {
+    id: `ORD-${String(id).padStart(3, '0')}`,
+    items: orderItems,
+    subtotal,
+    tax,
+    discount: 0,
+    total,
+    totalProfit,
+    paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+    cashierId: `cashier_0${Math.ceil(Math.random() * 2)}`,
+    createdAt: date,
+  };
+};
+
+const generateOrders = (): Order[] => {
+    const orderList: Order[] = [];
+    const today = new Date();
+    let orderId = 1;
+
+    for (let i = 90; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        const numOrders = Math.floor(Math.random() * 5) + 2; // 2 to 6 orders per day
+        for (let j = 0; j < numOrders; j++) {
+            orderList.push(generateRandomOrder(orderId++, date));
+        }
     }
-];
+    return orderList.reverse();
+}
+
+export const orders: Order[] = generateOrders();

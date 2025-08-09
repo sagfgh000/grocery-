@@ -1,8 +1,7 @@
-
 "use client"
 
 import * as React from "react"
-import { Pie, PieChart } from "recharts"
+import { Pie, PieChart, Cell } from "recharts"
 
 import {
   ChartContainer,
@@ -10,64 +9,53 @@ import {
   ChartTooltipContent,
   ChartConfig,
 } from "@/components/ui/chart"
-import { products } from "@/lib/data"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-const initialChartData = products.reduce((acc, product) => {
-    const category = product.category;
-    if (!acc[category]) {
-        acc[category] = { category, revenue: 0, fill: ""};
-    }
-    return acc;
-}, {} as any)
+interface CategoryChartProps {
+    data: { category: string; revenue: number; fill: string; }[];
+    title: string;
+    description: string;
+}
 
-const initialChartConfig = Object.values(initialChartData).reduce((acc, data: any) => {
-    acc[data.category] = { label: data.category };
-    return acc;
-}, {} as ChartConfig);
-
-
-export function CategoryChart() {
-  const [chartData, setChartData] = React.useState(initialChartData);
-  const [chartConfig, setChartConfig] = React.useState(initialChartConfig);
-
-  React.useEffect(() => {
-    const generatedChartData = products.reduce((acc, product) => {
-        const category = product.category;
-        if (!acc[category]) {
-            acc[category] = { category, revenue: 0, fill: `hsl(${Math.random() * 360}, 70%, 50%)`};
-        }
-        acc[category].revenue += Math.random() * 5000; // Mock revenue
-        return acc;
-    }, {} as any);
-
-    setChartData(generatedChartData);
-
-    const generatedChartConfig = Object.values(generatedChartData).reduce((acc, data: any) => {
-        acc[data.category] = { label: data.category, color: data.fill };
+export function CategoryChart({ data, title, description }: CategoryChartProps) {
+    const chartConfig = data.reduce((acc, item) => {
+        acc[item.category] = { label: item.category, color: item.fill };
         return acc;
     }, {} as ChartConfig);
 
-    setChartConfig(generatedChartConfig);
-  }, []);
-
-  return (
-    <ChartContainer
-      config={chartConfig}
-      className="mx-auto aspect-square h-[250px]"
-    >
-      <PieChart>
-        <ChartTooltip
-          cursor={false}
-          content={<ChartTooltipContent hideLabel />}
-        />
-        <Pie
-          data={Object.values(chartData)}
-          dataKey="revenue"
-          nameKey="category"
-          innerRadius={60}
-          strokeWidth={5}
-        />
-      </PieChart>
-    </ChartContainer>
-  )
+    return (
+        <Card className="col-span-4 lg:col-span-3">
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+                <ChartContainer
+                    config={chartConfig}
+                    className="mx-auto aspect-square h-[250px]"
+                >
+                    <PieChart>
+                        <ChartTooltip
+                            cursor={false}
+                            content={<ChartTooltipContent 
+                                hideLabel 
+                                formatter={(value) => typeof value === 'number' ? value.toLocaleString('bn-BD', { style: 'currency', currency: 'BDT' }) : value}
+                            />}
+                        />
+                        <Pie
+                            data={data}
+                            dataKey="revenue"
+                            nameKey="category"
+                            innerRadius={60}
+                            strokeWidth={5}
+                        >
+                            {data.map((entry) => (
+                                <Cell key={`cell-${entry.category}`} fill={entry.fill} />
+                            ))}
+                        </Pie>
+                    </PieChart>
+                </ChartContainer>
+            </CardContent>
+        </Card>
+    )
 }
