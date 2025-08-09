@@ -16,18 +16,26 @@ import { Input } from "@/components/ui/input";
 import { PlusCircle, Search } from "lucide-react";
 import { type Product } from "@/lib/types";
 import { useLanguage } from "@/context/language-context";
+import { AddProductDialog } from "./add-product-dialog";
+import { products as initialProducts } from "@/lib/data";
 
 interface ProductTableProps {
   data: Product[];
 }
 
 export function ProductTable({ data }: ProductTableProps) {
-  const [filteredData, setFilteredData] = React.useState(data);
+  const [products, setProducts] = React.useState(initialProducts);
+  const [filteredData, setFilteredData] = React.useState(products);
   const { language, t } = useLanguage();
+  const [isAddDialogOpen, setAddDialogOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setFilteredData(products);
+  }, [products]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value.toLowerCase();
-    const filtered = data.filter(
+    const filtered = products.filter(
       (product) =>
         product.name_en.toLowerCase().includes(searchTerm) ||
         product.name_bn.toLowerCase().includes(searchTerm) ||
@@ -36,6 +44,10 @@ export function ProductTable({ data }: ProductTableProps) {
     );
     setFilteredData(filtered);
   };
+
+  const handleAddProduct = (newProduct: Product) => {
+    setProducts(prevProducts => [...prevProducts, newProduct]);
+  }
 
   const getStockBadgeVariant = (stock: number, threshold: number) => {
     if (stock === 0) return "destructive";
@@ -78,10 +90,17 @@ export function ProductTable({ data }: ProductTableProps) {
             onChange={handleSearch}
           />
         </div>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" onClick={() => setAddDialogOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" /> পণ্য যোগ করুন
         </Button>
       </div>
+
+      <AddProductDialog 
+        isOpen={isAddDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onProductAdd={handleAddProduct}
+      />
+
       <div className="rounded-md border">
         <div className="relative w-full overflow-auto">
           <Table>

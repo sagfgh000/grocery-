@@ -1,10 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { type Order } from "@/lib/types";
 import { useLanguage } from "@/context/language-context";
+import { Download, Printer } from "lucide-react";
 
 interface ReceiptProps {
   order: Order;
@@ -12,10 +15,39 @@ interface ReceiptProps {
 
 export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }, ref) => {
   const { language } = useLanguage();
+  const receiptRef = useRef<HTMLDivElement>(null);
   
   const handlePrint = () => {
-    window.print();
+    const printableArea = receiptRef.current;
+    if (printableArea) {
+      const printWindow = window.open('', '', 'height=600,width=800');
+      printWindow?.document.write('<html><head><title>Print Receipt</title>');
+      printWindow?.document.write('<style> body { font-family: monospace; } </style>');
+      printWindow?.document.write('</head><body>');
+      printWindow?.document.write(printableArea.innerHTML);
+      printWindow?.document.write('</body></html>');
+      printWindow?.document.close();
+      printWindow?.focus();
+      printWindow?.print();
+    }
   };
+
+  const handleDownload = () => {
+    const input = receiptRef.current;
+    if (input) {
+      html2canvas(input, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'px',
+          format: [canvas.width, canvas.height]
+        });
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save(`receipt-${order.id}.pdf`);
+      });
+    }
+  };
+
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
@@ -23,7 +55,7 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
 
   return (
     <div className="bg-white text-black p-4 font-mono text-sm" ref={ref}>
-        <div id="printable-receipt">
+        <div id="printable-receipt" ref={receiptRef} className="p-4 bg-white">
             <div className="text-center mb-4">
                 <h2 className="text-xl font-bold">GrocerEase</h2>
                 <p>123 Fresh St, Farmville, USA</p>
@@ -66,23 +98,14 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
                 <p>Thank you for shopping with us!</p>
             </div>
         </div>
-        <style jsx global>{`
-            @media print {
-                body * {
-                    visibility: hidden;
-                }
-                #printable-receipt, #printable-receipt * {
-                    visibility: visible;
-                }
-                #printable-receipt {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                }
-            }
-        `}</style>
-         <Button onClick={handlePrint} className="w-full mt-4 text-white">Print Receipt</Button>
+         <div className="flex gap-2 mt-4">
+            <Button onClick={handlePrint} className="w-full text-white">
+              <Printer className="mr-2" /> Print
+            </Button>
+            <Button onClick={handleDownload} className="w-full text-white">
+              <Download className="mr-2" /> Download
+            </Button>
+         </div>
     </div>
   );
 });
