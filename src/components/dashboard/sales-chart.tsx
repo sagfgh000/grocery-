@@ -8,18 +8,18 @@ import {
 } from "@/components/ui/chart"
 
 const data = [
-  { name: "Jan", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Feb", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Mar", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Apr", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "May", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Jun", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Jul", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Aug", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Sep", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Oct", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Nov", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Dec", total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: "Jan", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "Feb", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "Mar", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "Apr", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "May", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "Jun", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "Jul", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "Aug", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "Sep", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "Oct", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "Nov", total: Math.floor(Math.random() * 500000) + 100000 },
+  { name: "Dec", total: Math.floor(Math.random() * 500000) + 100000 },
 ]
 
 const chartConfig = {
@@ -45,12 +45,12 @@ export function SalesChart() {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `$${value}`}
+          tickFormatter={(value) => `৳${Number(value) / 1000}k`}
         />
         <Tooltip
             cursor={false}
             content={<ChartTooltipContent 
-            formatter={(value) => value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+            formatter={(value) => value.toLocaleString('bn-BD', { style: 'currency', currency: 'BDT' })}
             />}
         />
         <Bar dataKey="total" fill="var(--color-total)" radius={4} />

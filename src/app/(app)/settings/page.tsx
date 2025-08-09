@@ -51,7 +51,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currency">Currency</Label>
-              <Input id="currency" defaultValue="USD" />
+              <Input id="currency" defaultValue="BDT" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="tax-rate">Tax Rate (%)</Label>

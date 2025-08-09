@@ -63,7 +63,7 @@ export function ProductTable({ data }: ProductTableProps) {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
   }
 
   return (
@@ -73,13 +73,13 @@ export function ProductTable({ data }: ProductTableProps) {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search products..."
+            placeholder="পণ্য খুঁজুন..."
             className="pl-8"
             onChange={handleSearch}
           />
         </div>
         <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Product
+          <PlusCircle className="mr-2 h-4 w-4" /> পণ্য যোগ করুন
         </Button>
       </div>
       <div className="rounded-md border">

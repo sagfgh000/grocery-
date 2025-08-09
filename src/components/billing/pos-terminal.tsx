@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Minus, X, Search, DollarSign } from "lucide-react";
+import { Plus, Minus, X, Search } from "lucide-react";
 import { type CartItem, type Product } from "@/lib/types";
 import { useLanguage } from "@/context/language-context";
 import {
@@ -61,7 +61,7 @@ export function PosTerminal() {
       }
     });
     toast({
-      title: `${language === 'bn' ? product.name_bn : product.name_en} added to cart.`,
+      title: `${language === 'bn' ? product.name_bn : product.name_en} কার্টে যোগ করা হয়েছে।`,
     });
   };
 
@@ -92,8 +92,8 @@ export function PosTerminal() {
   const handleCheckout = () => {
     if(cart.length === 0) {
       toast({
-        title: "Cart is empty",
-        description: "Please add products to the cart before checkout.",
+        title: "কার্ট খালি",
+        description: "চেকআউটের আগে দয়া করে কার্টে পণ্য যোগ করুন।",
         variant: "destructive",
       })
       return;
@@ -115,15 +115,19 @@ export function PosTerminal() {
     setCart([]);
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 h-full">
       <div className="lg:col-span-2 h-full flex flex-col p-4 bg-background">
         <div className="flex items-center gap-4 mb-4">
-            <h2 className="text-2xl font-bold tracking-tight font-headline">Products</h2>
+            <h2 className="text-2xl font-bold tracking-tight font-headline">পণ্য</h2>
             <div className="relative w-full max-w-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                    placeholder="Search for products..."
+                    placeholder="পণ্য খুঁজুন..."
                     className="pl-8"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -143,7 +147,7 @@ export function PosTerminal() {
                     className="rounded-md object-cover aspect-square"
                     />
                     <h3 className="text-sm font-medium mt-2 truncate">{language === 'bn' ? product.name_bn : product.name_en}</h3>
-                    <p className="text-lg font-semibold">${product.selling_price.toFixed(2)}</p>
+                    <p className="text-lg font-semibold">{formatCurrency(product.selling_price)}</p>
                 </CardContent>
                 </Card>
             ))}
@@ -154,19 +158,19 @@ export function PosTerminal() {
       <div className="col-span-1 h-full flex flex-col p-4 bg-card border-l">
         <Card className="flex-1 flex flex-col">
             <CardHeader>
-                <CardTitle>Current Order</CardTitle>
+                <CardTitle>বর্তমান অর্ডার</CardTitle>
             </CardHeader>
             <ScrollArea className="flex-1">
                 <CardContent className="space-y-4">
                 {cart.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-10">Your cart is empty.</p>
+                    <p className="text-center text-muted-foreground py-10">আপনার কার্ট খালি।</p>
                 ) : (
                     cart.map((item) => (
                     <div key={item.product.id} className="flex items-center gap-4">
                         <Image src={item.product.imageUrl || 'https://placehold.co/64x64.png'} alt={item.product.name_en} width={64} height={64} className="rounded-md" />
                         <div className="flex-1">
                         <p className="font-medium">{language === 'bn' ? item.product.name_bn : item.product.name_en}</p>
-                        <p className="text-sm text-muted-foreground">${item.product.selling_price.toFixed(2)}</p>
+                        <p className="text-sm text-muted-foreground">{formatCurrency(item.product.selling_price)}</p>
                         <div className="flex items-center gap-2 mt-1">
                             <Button size="icon" variant="outline" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}>
                             <Minus className="h-4 w-4" />
@@ -178,8 +182,8 @@ export function PosTerminal() {
                         </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold">${item.subtotal.toFixed(2)}</p>
-                          <p className="text-xs text-green-600">Profit: ${item.profit.toFixed(2)}</p>
+                          <p className="font-semibold">{formatCurrency(item.subtotal)}</p>
+                          <p className="text-xs text-green-600">লাভ: {formatCurrency(item.profit)}</p>
                         </div>
                         <Button size="icon" variant="ghost" className="text-muted-foreground" onClick={() => removeFromCart(item.product.id)}>
                         <X className="h-4 w-4" />
@@ -192,34 +196,34 @@ export function PosTerminal() {
             <div className="p-6 border-t">
                 <div className="space-y-2">
                     <div className="flex justify-between">
-                        <span>Subtotal</span>
-                        <span>${cartSubtotal.toFixed(2)}</span>
+                        <span>উপমোট</span>
+                        <span>{formatCurrency(cartSubtotal)}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span>Tax (5%)</span>
-                        <span>${tax.toFixed(2)}</span>
+                        <span>কর (৫%)</span>
+                        <span>{formatCurrency(tax)}</span>
                     </div>
                     <div className="flex justify-between text-green-600">
-                        <span>Estimated Profit</span>
-                        <span>${totalProfit.toFixed(2)}</span>
+                        <span>আনুমানিক লাভ</span>
+                        <span>{formatCurrency(totalProfit)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between font-bold text-lg">
-                        <span>Total</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>মোট</span>
+                        <span>{formatCurrency(total)}</span>
                     </div>
                 </div>
                 
                 <Dialog open={isReceiptOpen} onOpenChange={setReceiptOpen}>
                     <DialogTrigger asChild>
                         <Button size="lg" className="w-full mt-6" onClick={handleCheckout}>
-                        <DollarSign className="mr-2 h-5 w-5" /> Checkout
+                        চেকআউট
                         </Button>
                     </DialogTrigger>
                     {lastOrder && (
                         <DialogContent className="max-w-sm">
                             <DialogHeader>
-                                <DialogTitle>Receipt</DialogTitle>
+                                <DialogTitle>রসিদ</DialogTitle>
                             </DialogHeader>
                             <Receipt order={lastOrder} />
                         </DialogContent>

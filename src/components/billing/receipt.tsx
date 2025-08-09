@@ -18,7 +18,7 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
   }
 
   return (
@@ -28,7 +28,7 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
                 <h2 className="text-xl font-bold">GrocerEase</h2>
                 <p>123 Fresh St, Farmville, USA</p>
                 <p>Order ID: {order.id}</p>
-                <p>Date: {order.createdAt.toLocaleString()}</p>
+                <p>Date: {order.createdAt.toLocaleString('bn-BD')}</p>
             </div>
             <Separator className="my-2 bg-gray-400" />
             <div>

@@ -11,7 +11,7 @@ import {
 
   export default function OrdersPage() {
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+        return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
     }
 
     return (
@@ -34,7 +34,7 @@ import {
                         {orders.map((order) => (
                             <TableRow key={order.id}>
                                 <TableCell className="font-medium">{order.id}</TableCell>
-                                <TableCell>{order.createdAt.toLocaleDateString()}</TableCell>
+                                <TableCell>{order.createdAt.toLocaleDateString('bn-BD')}</TableCell>
                                 <TableCell>
                                     <Badge variant="outline">{order.paymentMethod}</Badge>
                                 </TableCell>

@@ -23,36 +23,36 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight font-headline">Dashboard</h2>
+        <h2 className="text-3xl font-bold tracking-tight font-headline">ড্যাশবোর্ড</h2>
         <div className="flex items-center space-x-2">
           <CalendarDateRangePicker />
-          <Button>Download</Button>
+          <Button>ডাউনলোড</Button>
         </div>
       </div>
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="overview">ခြုံငုံသုံးသပ်ချက်</TabsTrigger>
           <TabsTrigger value="analytics" disabled>
-            Analytics
+          অ্যানালিটিক্স
           </TabsTrigger>
           <TabsTrigger value="reports" disabled>
-            Reports
+          রিপোর্ট
           </TabsTrigger>
           <TabsTrigger value="notifications" disabled>
-            Notifications
+          নোটিফিকেশন
           </TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <KpiCard title="Total Revenue" value="$45,231.89" description="+20.1% from last month" icon={DollarSign} />
-            <KpiCard title="Total Profit" value="$12,874.21" description="+18.3% from last month" icon={DollarSign} />
-            <KpiCard title="Sales" value="+2350" description="+15.1% from last month" icon={CreditCard} />
-            <KpiCard title="Products in Stock" value="1,234" description="12 below threshold" icon={Package} />
+            <KpiCard title="মোট রাজস্ব" value="৳৪,৫২৩,১৮৯" description="গত মাস থেকে +২০.১%" icon={DollarSign} />
+            <KpiCard title="মোট লাভ" value="৳১,২৮৭,৪২১" description="গত মাস থেকে +১৮.৩%" icon={DollarSign} />
+            <KpiCard title="বিক্রয়" value="+২৩৫০" description="গত মাস থেকে +১৫.১%" icon={CreditCard} />
+            <KpiCard title="স্টকে থাকা পণ্য" value="১,২৩৪" description="থ্রেশহোল্ডের নিচে ১২" icon={Package} />
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-4">
               <CardHeader>
-                <CardTitle>Overview</CardTitle>
+                <CardTitle>ခြုံငုံသုံးသပ်ချက်</CardTitle>
               </CardHeader>
               <CardContent className="pl-2">
                 <SalesChart />
@@ -60,9 +60,9 @@ export default function DashboardPage() {
             </Card>
             <Card className="col-span-4 lg:col-span-3">
               <CardHeader>
-                <CardTitle>Top Categories</CardTitle>
+                <CardTitle>শীর্ষ বিভাগ</CardTitle>
                 <CardDescription>
-                  Revenue by product category this month.
+                এই মাসে পণ্যের বিভাগ অনুসারে আয়।
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -73,9 +73,9 @@ export default function DashboardPage() {
            <div className="grid gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Sales</CardTitle>
+                <CardTitle>সাম্প্রতিক বিক্রয়</CardTitle>
                 <CardDescription>
-                  You made 265 sales this month.
+                আপনি এই মাসে ২৬৫টি বিক্রয় করেছেন।
                 </CardDescription>
               </CardHeader>
               <CardContent>
