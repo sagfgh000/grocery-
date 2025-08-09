@@ -7,6 +7,7 @@ import {
   ChartContainer,
 } from "@/components/ui/chart"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useLanguage } from "@/context/language-context"
 
 const chartConfig = {
   total: {
@@ -21,6 +22,20 @@ interface SalesChartProps {
 }
 
 export function SalesChart({ data, title }: SalesChartProps) {
+  const { language } = useLanguage();
+  
+  const tickFormatter = (value: number) => {
+    const num = Number(value);
+    if (language === 'bn') {
+        if (num >= 10000000) return `৳${(num / 10000000).toFixed(1)}কো`;
+        if (num >= 100000) return `৳${(num / 100000).toFixed(1)}লা`;
+        if (num >= 1000) return `৳${(num / 1000).toFixed(1)}হা`;
+        return `৳${num}`;
+    }
+    if (num >= 1000) return `৳${num / 1000}k`;
+    return `৳${num}`;
+  };
+  
   return (
     <Card className="col-span-4">
         <CardHeader>
@@ -41,12 +56,12 @@ export function SalesChart({ data, title }: SalesChartProps) {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `৳${Number(value) / 1000}k`}
+                tickFormatter={tickFormatter}
                 />
                 <Tooltip
                     cursor={false}
                     content={<ChartTooltipContent 
-                    formatter={(value) => typeof value === 'number' ? value.toLocaleString('bn-BD', { style: 'currency', currency: 'BDT' }) : value}
+                    formatter={(value) => typeof value === 'number' ? value.toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US', { style: 'currency', currency: 'BDT' }) : value}
                     />}
                 />
                 <Bar dataKey="total" fill="var(--color-total)" radius={4} />

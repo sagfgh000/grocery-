@@ -14,12 +14,13 @@ import {
 import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { SalesChart } from "@/components/dashboard/sales-chart";
-import { DollarSign, CreditCard, Package, Download } from "lucide-react";
+import { CreditCard, Package, Download, BarChart2 } from "lucide-react";
 import { CategoryChart } from "@/components/dashboard/category-chart";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { useLanguage } from "@/context/language-context";
 import { DateRange } from "react-day-picker";
 import { subDays, startOfMonth, endOfMonth, format, eachDayOfInterval, isWithinInterval } from "date-fns";
+import { bn, enUS } from "date-fns/locale";
 import { orders, products } from "@/lib/data";
 
 export default function DashboardPage() {
@@ -39,7 +40,7 @@ export default function DashboardPage() {
   const translations = {
     dashboard: { en: "Dashboard", bn: "ড্যাশবোর্ড" },
     download: { en: "Download", bn: "ডাউনলোড" },
-    overview: { en: "Overview", bn: "ခြုံငုံသုံးသပ်ချက်" },
+    overview: { en: "Overview", bn: "সংক্ষিপ্ত বিবরণ" },
     analytics: { en: "Analytics", bn: "অ্যানালিটিক্স" },
     reports: { en: "Reports", bn: "রিপোর্ট" },
     notifications: { en: "Notifications", bn: "নোটিফিকেশন" },
@@ -62,7 +63,12 @@ export default function DashboardPage() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
+    return new Intl.NumberFormat(language === 'bn' ? 'bn-BD' : 'en-US', { style: 'currency', currency: 'BDT' }).format(amount);
+  }
+  
+  const formatDate = (date: Date) => {
+      const locale = language === 'bn' ? bn : enUS;
+      return format(date, "LLL dd, y", { locale });
   }
 
   const filteredOrders = React.useMemo(() => {
@@ -125,17 +131,18 @@ export default function DashboardPage() {
       productsInStock: products.length.toString(),
       stockDesc: `${lowStockCount} ${t(translations.productsBelowThreshold)}`,
     }
-  }, [filteredOrders, previousOrders, products, t, language, date]);
+  }, [filteredOrders, previousOrders, date, t, language]);
   
   const salesChartData = React.useMemo(() => {
     if (!date?.from) return [];
     const toDate = date.to ?? date.from;
     const intervalDays = eachDayOfInterval({ start: date.from, end: toDate });
+    const locale = language === 'bn' ? bn : enUS;
 
     if (intervalDays.length > 31) { // Monthly
         const months: {[key: string]: number} = {};
         filteredOrders.forEach(order => {
-            const month = format(order.createdAt, 'MMM y');
+            const month = format(order.createdAt, 'MMM y', { locale });
             if(!months[month]) months[month] = 0;
             months[month] += order.total;
         });
@@ -144,17 +151,17 @@ export default function DashboardPage() {
     // Daily
     const days: {[key: string]: number} = {};
     intervalDays.forEach(day => {
-        days[format(day, 'MMM d')] = 0;
+        days[format(day, 'MMM d', { locale })] = 0;
     })
     filteredOrders.forEach(order => {
-        const day = format(order.createdAt, 'MMM d');
+        const day = format(order.createdAt, 'MMM d', { locale });
         if(days[day] !== undefined) {
             days[day] += order.total;
         }
     });
     return Object.entries(days).map(([name, total]) => ({name, total}));
 
-  }, [filteredOrders, date]);
+  }, [filteredOrders, date, language]);
 
   const categoryChartData = React.useMemo(() => {
     const categoryRevenue: {[key: string]: { category: string; revenue: number; fill: string }} = {};
@@ -180,7 +187,7 @@ export default function DashboardPage() {
     const toDate = date.to ?? date.from;
     const translationFunc = translations.recentSalesDesc[language];
     if (typeof translationFunc === 'function') {
-      return translationFunc(filteredOrders.length, format(date.from, "LLL dd, y"), format(toDate, "LLL dd, y"));
+      return translationFunc(filteredOrders.length, formatDate(date.from), formatDate(toDate));
     }
     return '';
   }, [filteredOrders, date, language]);
@@ -227,8 +234,8 @@ export default function DashboardPage() {
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <KpiCard title={t(translations.totalRevenue)} value={kpiData.totalRevenue} description={kpiData.revenueDesc} icon={DollarSign} />
-              <KpiCard title={t(translations.totalProfit)} value={kpiData.totalProfit} description={kpiData.profitDesc} icon={DollarSign} />
+              <KpiCard title={t(translations.totalRevenue)} value={kpiData.totalRevenue} description={kpiData.revenueDesc} />
+              <KpiCard title={t(translations.totalProfit)} value={kpiData.totalProfit} description={kpiData.profitDesc} />
               <KpiCard title={t(translations.sales)} value={kpiData.sales} description={kpiData.salesDesc} icon={CreditCard} />
               <KpiCard title={t(translations.productsInStock)} value={kpiData.productsInStock} description={kpiData.stockDesc} icon={Package} />
             </div>

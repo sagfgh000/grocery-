@@ -3,6 +3,7 @@
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
+import { bn, enUS } from "date-fns/locale"
 import { DateRange } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
@@ -13,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useLanguage } from "@/context/language-context"
 
 interface CalendarDateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
     date: DateRange | undefined;
@@ -24,6 +26,8 @@ export function CalendarDateRangePicker({
   date,
   setDate
 }: CalendarDateRangePickerProps) {
+  const { language } = useLanguage();
+  const locale = language === 'bn' ? bn : enUS;
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -41,11 +45,11 @@ export function CalendarDateRangePicker({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
+                  {format(date.from, "LLL dd, y", { locale })} -{" "}
+                  {format(date.to, "LLL dd, y", { locale })}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                format(date.from, "LLL dd, y", { locale })
               )
             ) : (
               <span>Pick a date</span>
@@ -60,6 +64,7 @@ export function CalendarDateRangePicker({
             selected={date}
             onSelect={setDate}
             numberOfMonths={2}
+            locale={locale}
           />
         </PopoverContent>
       </Popover>
