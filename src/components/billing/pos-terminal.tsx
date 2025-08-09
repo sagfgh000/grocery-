@@ -18,6 +18,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Receipt } from "./receipt";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -80,7 +81,7 @@ export function PosTerminal() {
       }
     });
     toast({
-      title: t(translations.addedToCart)(language === 'bn' ? product.name_bn : product.name_en),
+      title: t(translations.addedToCart, language === 'bn' ? product.name_bn : product.name_en),
     });
   };
 
@@ -135,7 +136,7 @@ export function PosTerminal() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
+    return new Intl.NumberFormat(language === 'bn' ? 'bn-BD' : 'en-US', { style: 'currency', currency: 'BDT' }).format(amount);
   }
 
   const ReceiptDialog = isMobile ? Drawer : Dialog;
