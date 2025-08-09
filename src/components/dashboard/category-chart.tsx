@@ -1,14 +1,9 @@
+
 "use client"
 
+import * as React from "react"
 import { Pie, PieChart } from "recharts"
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import {
   ChartContainer,
   ChartTooltip,
@@ -17,23 +12,44 @@ import {
 } from "@/components/ui/chart"
 import { products } from "@/lib/data"
 
-const chartData = products.reduce((acc, product) => {
+const initialChartData = products.reduce((acc, product) => {
     const category = product.category;
     if (!acc[category]) {
-        acc[category] = { category, revenue: 0, fill: `hsl(${Math.random() * 360}, 70%, 50%)`};
+        acc[category] = { category, revenue: 0, fill: ""};
     }
-    acc[category].revenue += Math.random() * 5000; // Mock revenue
     return acc;
 }, {} as any)
 
-
-const chartConfig = Object.values(chartData).reduce((acc, data: any) => {
-    acc[data.category] = { label: data.category, color: data.fill };
+const initialChartConfig = Object.values(initialChartData).reduce((acc, data: any) => {
+    acc[data.category] = { label: data.category };
     return acc;
 }, {} as ChartConfig);
 
 
 export function CategoryChart() {
+  const [chartData, setChartData] = React.useState(initialChartData);
+  const [chartConfig, setChartConfig] = React.useState(initialChartConfig);
+
+  React.useEffect(() => {
+    const generatedChartData = products.reduce((acc, product) => {
+        const category = product.category;
+        if (!acc[category]) {
+            acc[category] = { category, revenue: 0, fill: `hsl(${Math.random() * 360}, 70%, 50%)`};
+        }
+        acc[category].revenue += Math.random() * 5000; // Mock revenue
+        return acc;
+    }, {} as any);
+
+    setChartData(generatedChartData);
+
+    const generatedChartConfig = Object.values(generatedChartData).reduce((acc, data: any) => {
+        acc[data.category] = { label: data.category, color: data.fill };
+        return acc;
+    }, {} as ChartConfig);
+
+    setChartConfig(generatedChartConfig);
+  }, []);
+
   return (
     <ChartContainer
       config={chartConfig}
