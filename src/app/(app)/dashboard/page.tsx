@@ -1,4 +1,5 @@
 
+      
 "use client";
 
 import * as React from "react";
@@ -19,7 +20,7 @@ import { CategoryChart } from "@/components/dashboard/category-chart";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { useLanguage } from "@/context/language-context";
 import { DateRange } from "react-day-picker";
-import { subDays, startOfMonth, endOfMonth, format, eachDayOfInterval, isWithinInterval, parseISO } from "date-fns";
+import { subDays, startOfMonth, endOfMonth, format, eachDayOfInterval, isWithinInterval, parseISO, endOfDay } from "date-fns";
 import { bn, enUS } from "date-fns/locale";
 import { useData } from "@/context/data-context";
 import { Order } from "@/lib/types";
@@ -84,7 +85,7 @@ export default function DashboardPage() {
   const filteredOrders = React.useMemo(() => {
     if (!date?.from) return [];
     const toDate = date.to ?? date.from;
-    return parsedOrders.filter(order => isWithinInterval(order.createdAt, { start: date.from!, end: toDate }));
+    return parsedOrders.filter(order => isWithinInterval(order.createdAt, { start: date.from!, end: endOfDay(toDate) }));
   }, [date, parsedOrders]);
 
   const previousPeriod = React.useMemo(() => {
@@ -276,3 +277,5 @@ export default function DashboardPage() {
   );
 }
 
+
+    
