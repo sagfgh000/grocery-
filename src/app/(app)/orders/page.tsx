@@ -43,8 +43,8 @@ import {
 
     const getPaymentStatusTranslation = (status: 'paid' | 'due') => {
         const statusTranslations = {
-            paid: { en: "Paid", bn: "পরিশোধিত" },
-            due: { en: "Due", bn: "বকেয়া" },
+            paid: translations.paid,
+            due: translations.due,
         };
         return t(statusTranslations[status]);
     }
