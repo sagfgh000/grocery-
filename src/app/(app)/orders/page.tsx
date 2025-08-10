@@ -41,14 +41,6 @@ import {
     }
     
     const parsedOrders = useMemo(() => orders.map(o => ({...o, createdAt: parseISO(o.createdAt as unknown as string)})).sort((a,b) => b.createdAt.getTime() - a.createdAt.getTime()), [orders]);
-
-    const getPaymentStatusTranslation = (status: 'paid' | 'due') => {
-        const statusTranslations = {
-            paid: translations.paid,
-            due: translations.due,
-        };
-        return t(statusTranslations[status]);
-    }
     
     const handleOrderSelect = (order: Order) => {
         if(order.paymentStatus === 'due') {
@@ -101,7 +93,7 @@ import {
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'destructive'}>
-                                      {t(translations[order.paymentStatus])}
+                                      {order.paymentStatus === 'paid' ? t(translations.paid) : t(translations.due)}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right whitespace-nowrap">{formatCurrency(order.total)}</TableCell>
