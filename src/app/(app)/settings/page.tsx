@@ -1,6 +1,7 @@
 
 "use client";
 
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,6 +35,7 @@ export default function SettingsPage() {
   const { clearAllData } = useData();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
 
   const translations = {
       settings: { en: "Settings", bn: "সেটিংস" },
@@ -47,8 +49,11 @@ export default function SettingsPage() {
       dangerZone: { en: "Danger Zone", bn: "বিপজ্জনক এলাকা" },
       clearAppData: { en: "Clear App Data", bn: "অ্যাপ ডেটা সাফ করুন" },
       clearAppDataDesc: { en: "This will permanently delete all your products, orders, and settings. This action cannot be undone.", bn: "এটি স্থায়ীভাবে আপনার সমস্ত পণ্য, অর্ডার এবং সেটিংস মুছে ফেলবে। এই কাজটি ফিরিয়ে আনা যাবে না।" },
-      clearDataConfirmationTitle: { en: "Are you sure?", bn: "আপনি কি নিশ্চিত?" },
-      clearDataConfirmationDesc: { en: "This will permanently delete all your application data.", bn: "এটি স্থায়ীভাবে আপনার সমস্ত অ্যাপ্লিকেশন ডেটা মুছে ফেলবে।" },
+      clearDataConfirmationTitle: { en: "Are you absolutely sure?", bn: "আপনি কি পুরোপুরি নিশ্চিত?" },
+      clearDataConfirmationDesc: { 
+        en: "This action cannot be undone. This will permanently delete all data. Please type 'delete' to confirm.", 
+        bn: "এই কাজটি ফিরিয়ে আনা যাবে না। এটি স্থায়ীভাবে সমস্ত ডেটা মুছে ফেলবে। নিশ্চিত করতে 'delete' টাইপ করুন।"
+      },
       cancel: { en: "Cancel", bn: "বাতিল করুন" },
       confirm: { en: "Confirm", bn: "নিশ্চিত করুন" },
   };
@@ -63,6 +68,11 @@ export default function SettingsPage() {
       title: t(translations.shopDetailsSaved),
       description: t(translations.shopDetailsUpdated),
     });
+  }
+
+  const handleClearData = () => {
+    clearAllData();
+    setDeleteConfirmText("");
   }
 
   return (
@@ -100,7 +110,7 @@ export default function SettingsPage() {
             <CardDescription>{t(translations.clearAppDataDesc)}</CardDescription>
           </CardContent>
           <CardFooter>
-            <AlertDialog>
+            <AlertDialog onOpenChange={() => setDeleteConfirmText("")}>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive">{t(translations.clearAppData)}</Button>
               </AlertDialogTrigger>
@@ -109,9 +119,17 @@ export default function SettingsPage() {
                   <AlertDialogTitle>{t(translations.clearDataConfirmationTitle)}</AlertDialogTitle>
                   <AlertDialogDescription>{t(translations.clearDataConfirmationDesc)}</AlertDialogDescription>
                 </AlertDialogHeader>
+                <div className="py-2">
+                    <Input 
+                        id="delete-confirm"
+                        value={deleteConfirmText}
+                        onChange={(e) => setDeleteConfirmText(e.target.value)}
+                        placeholder="delete"
+                    />
+                </div>
                 <AlertDialogFooter>
                   <AlertDialogCancel>{t(translations.cancel)}</AlertDialogCancel>
-                  <AlertDialogAction onClick={clearAllData}>{t(translations.confirm)}</AlertDialogAction>
+                  <AlertDialogAction onClick={handleClearData} disabled={deleteConfirmText !== 'delete'}>{t(translations.confirm)}</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
