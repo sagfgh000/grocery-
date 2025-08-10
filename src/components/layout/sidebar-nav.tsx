@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -59,7 +60,7 @@ export function SidebarNav() {
 
   return (
     <>
-      <SidebarHeader>
+      <SidebarHeader className="hidden md:flex">
         <div className="flex items-center gap-2">
             <div className="flex-shrink-0">
                 <ShoppingCart className="w-7 h-7 text-primary" />
