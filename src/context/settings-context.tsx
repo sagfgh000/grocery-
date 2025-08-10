@@ -19,7 +19,7 @@ const SETTINGS_STORAGE_KEY = 'grocerEaseSettings';
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<Settings>({
-    shopName: 'Yea Ali Kaddo Bandar',
+    shopName: 'ইয়া আলী খাদ্য ভান্ডার',
     shopAddress: '123 Fresh St, Farmville, USA',
   });
 
