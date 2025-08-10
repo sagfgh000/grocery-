@@ -23,6 +23,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/context/language-context";
+import { useSettings } from "@/context/settings-context";
 
 const links = [
   { 
@@ -56,6 +57,7 @@ const links = [
 export function SidebarNav() {
   const pathname = usePathname();
   const { t } = useLanguage();
+  const { settings } = useSettings();
 
   return (
     <>
@@ -66,7 +68,7 @@ export function SidebarNav() {
             </div>
             <div className="flex flex-col">
                 <h2 className="text-lg font-semibold font-headline tracking-tight">
-                    GrocerEase
+                    {settings.shopName}
                 </h2>
             </div>
             <div className="ml-auto">
