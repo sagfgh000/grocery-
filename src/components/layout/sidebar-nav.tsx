@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserNav } from "@/components/user-nav";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/context/language-context";
 
@@ -96,7 +95,6 @@ export function SidebarNav() {
       </SidebarContent>
       <SidebarFooter>
         <LanguageToggle />
-        <UserNav />
       </SidebarFooter>
     </>
   );
