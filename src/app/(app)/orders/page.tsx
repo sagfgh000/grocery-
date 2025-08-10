@@ -41,7 +41,7 @@ import {
             paid: translations.paid,
             due: translations.due,
         };
-        return t(statusTranslations[status]);
+        return t(statusTranslations[status] || { en: status, bn: status });
     }
 
     return (
