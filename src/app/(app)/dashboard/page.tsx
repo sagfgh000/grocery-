@@ -61,6 +61,13 @@ export default function DashboardPage() {
       en: (count: number, from: string, to: string) => `You made ${count} sales between ${from} and ${to}.`,
       bn: (count: number, from: string, to: string) => `আপনি ${from} থেকে ${to} এর মধ্যে ${count}টি বিক্রয় করেছেন।`,
     },
+    salesReport: { en: "Sales Report", bn: "বিক্রয় রিপোর্ট" },
+    reportFor: { en: "Report for", bn: "এর জন্য রিপোর্ট" },
+    to: { en: "to", bn: "থেকে" },
+    summary: { en: "Summary", bn: "সারসংক্ষেপ" },
+    totalOrders: { en: "Total Orders", bn: "মোট অর্ডার" },
+    totalItemsSold: { en: "Total Items Sold", bn: "বিক্রি হওয়া মোট আইটেম" },
+    totalDueAmount: { en: "Total Due Amount", bn: "মোট বকেয়া পরিমাণ" },
   };
 
   const formatCurrency = (amount: number) => {
@@ -192,19 +199,36 @@ export default function DashboardPage() {
   }, [filteredOrders, date, language, t]);
 
   const handleDownload = () => {
-    const input = dashboardRef.current;
-    if (input) {
-      html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-          orientation: 'landscape',
-          unit: 'px',
-          format: [canvas.width, canvas.height]
-        });
-        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save(`dashboard-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-      });
+    if (!date?.from || filteredOrders.length === 0) {
+      alert("Please select a date range with orders to generate a report.");
+      return;
     }
+
+    const doc = new jsPDF();
+    const toDate = date.to ?? date.from;
+
+    // Report Header
+    doc.setFontSize(18);
+    doc.text(t(translations.salesReport), 14, 22);
+    doc.setFontSize(11);
+    doc.text(`${t(translations.reportFor)}: ${formatDate(date.from)} ${t(translations.to)} ${formatDate(toDate)}`, 14, 30);
+
+    // Summary Section
+    const totalRevenue = filteredOrders.reduce((sum, order) => sum + order.total, 0);
+    const totalProfit = filteredOrders.reduce((sum, order) => sum + order.totalProfit, 0);
+    const totalItemsSold = filteredOrders.reduce((sum, order) => sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+    const totalDue = filteredOrders.reduce((sum, order) => sum + order.amountDue, 0);
+
+    doc.setFontSize(14);
+    doc.text(t(translations.summary), 14, 45);
+    doc.setFontSize(11);
+    doc.text(`${t(translations.totalRevenue)}: ${formatCurrency(totalRevenue)}`, 14, 55);
+    doc.text(`${t(translations.totalProfit)}: ${formatCurrency(totalProfit)}`, 14, 61);
+    doc.text(`${t(translations.totalOrders)}: ${filteredOrders.length}`, 14, 67);
+    doc.text(`${t(translations.totalItemsSold)}: ${totalItemsSold.toFixed(2)}`, 14, 73);
+    doc.text(`${t(translations.totalDueAmount)}: ${formatCurrency(totalDue)}`, 14, 79);
+
+    doc.save(`sales-report-${format(date.from, 'yyyy-MM-dd')}-to-${format(toDate, 'yyyy-MM-dd')}.pdf`);
   };
 
 
@@ -251,3 +275,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
