@@ -43,24 +43,12 @@ import {
     const parsedOrders = useMemo(() => orders.map(o => ({...o, createdAt: parseISO(o.createdAt as unknown as string)})).sort((a,b) => b.createdAt.getTime() - a.createdAt.getTime()), [orders]);
     
     const handleOrderSelect = (order: Order) => {
-        if(order.paymentStatus === 'due') {
-            setSelectedOrder(order);
-        }
+        setSelectedOrder(order);
     }
 
     const handlePaymentUpdate = (orderId: string, newPayment: number) => {
         updateOrder(orderId, newPayment);
-        setSelectedOrder(prev => {
-            if(!prev) return null;
-            const newAmountPaid = prev.amountPaid + newPayment;
-            const newAmountDue = prev.total - newAmountPaid;
-            return {
-                ...prev,
-                amountPaid: newAmountPaid,
-                amountDue: newAmountDue,
-                paymentStatus: newAmountDue <= 0 ? 'paid' : 'due',
-            }
-        });
+        setSelectedOrder(null);
     }
 
     return (
@@ -84,7 +72,7 @@ import {
                     </TableHeader>
                     <TableBody>
                         {parsedOrders.map((order) => (
-                            <TableRow key={order.id} onClick={() => handleOrderSelect(order)} className={order.paymentStatus === 'due' ? "cursor-pointer" : ""}>
+                            <TableRow key={order.id} onClick={() => handleOrderSelect(order)} className="cursor-pointer">
                                 <TableCell className="font-medium sticky left-0 bg-card whitespace-nowrap">{order.id}</TableCell>
                                 <TableCell className="whitespace-nowrap">{order.customer?.name || t(translations.walkingCustomer)}</TableCell>
                                 <TableCell className="whitespace-nowrap">{order.createdAt.toLocaleDateString('bn-BD')}</TableCell>
@@ -93,7 +81,7 @@ import {
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'destructive'}>
-                                      {order.paymentStatus === 'paid' ? t(translations.paid) : t(translations.due)}
+                                      {t(order.paymentStatus === 'paid' ? translations.paid : translations.due)}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right whitespace-nowrap">{formatCurrency(order.total)}</TableCell>
