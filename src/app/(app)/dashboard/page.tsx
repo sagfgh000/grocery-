@@ -1,5 +1,4 @@
 
-      
 "use client";
 
 import * as React from "react";
@@ -41,9 +40,6 @@ export default function DashboardPage() {
     dashboard: { en: "Dashboard", bn: "ড্যাশবোর্ড" },
     download: { en: "Download", bn: "ডাউনলোড" },
     overview: { en: "Overview", bn: "সংক্ষিপ্ত বিবরণ" },
-    analytics: { en: "Analytics", bn: "অ্যানালিটিক্স" },
-    reports: { en: "Reports", bn: "রিপোর্ট" },
-    notifications: { en: "Notifications", bn: "নোটিফিকেশন" },
     totalRevenue: { en: "Total Revenue", bn: "মোট রাজস্ব" },
     totalProfit: { en: "Total Profit", bn: "মোট লাভ" },
     sales: { en: "Sales", bn: "বিক্রয়" },
@@ -70,7 +66,6 @@ export default function DashboardPage() {
     orderId: { en: "Order ID", bn: "অর্ডার আইডি" },
     orderDate: { en: "Date", bn: "তারিখ" },
     subtotal: { en: "Subtotal", bn: "উপমোট" },
-    tax: { en: "Tax", bn: "কর" },
     total: { en: "Total", bn: "মোট" },
     amountPaid: { en: "Paid", bn: "পরিশোধিত" },
     amountDue: { en: "Due", bn: "বকেয়া" },
@@ -308,11 +303,6 @@ export default function DashboardPage() {
         addText(formatCurrency(order.subtotal), 196, yPosition, { align: 'right' });
         yPosition += 5;
         
-        yPosition = checkPageBreak(yPosition);
-        addText(`${t(translations.tax)}:`, 150, yPosition);
-        addText(formatCurrency(order.tax), 196, yPosition, { align: 'right' });
-        yPosition += 5;
-
         doc.setFont(undefined, 'bold');
         yPosition = checkPageBreak(yPosition);
         addText(`${t(translations.total)}:`, 150, yPosition);
@@ -373,3 +363,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

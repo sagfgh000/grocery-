@@ -31,7 +31,6 @@ export type Order = {
   id: string;
   items: CartItem[];
   subtotal: number;
-  tax: number;
   discount: number;
   total: number;
   totalProfit: number;
@@ -43,3 +42,5 @@ export type Order = {
   amountDue: number;
   customer?: Customer;
 };
+
+    

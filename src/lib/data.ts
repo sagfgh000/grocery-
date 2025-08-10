@@ -131,8 +131,7 @@ const generateRandomOrder = (id: number, date: Date, products: Product[]): Order
     totalProfit += itemProfit;
   }
 
-  const tax = subtotal * 0.05;
-  const total = subtotal + tax;
+  const total = subtotal;
   const paymentMethods: ('cash' | 'mobile-pay' | 'card')[] = ['cash', 'card', 'mobile-pay'];
   const isDue = Math.random() > 0.8;
   const amountPaid = isDue ? parseFloat((total * (Math.random() * 0.5 + 0.2)).toFixed(2)) : total;
@@ -142,7 +141,6 @@ const generateRandomOrder = (id: number, date: Date, products: Product[]): Order
     id: `ORD-${String(id).padStart(3, '0')}`,
     items: orderItems,
     subtotal,
-    tax,
     discount: 0,
     total,
     totalProfit,
@@ -171,3 +169,5 @@ export const generateInitialOrders = (products: Product[]): Order[] => {
     }
     return orderList.reverse();
 }
+
+    

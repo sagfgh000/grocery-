@@ -52,7 +52,6 @@ export function PosTerminal() {
     cartEmpty: { en: "Your cart is empty.", bn: "আপনার কার্ট খালি।" },
     profit: { en: "Profit", bn: "লাভ" },
     subtotal: { en: "Subtotal", bn: "উপমোট" },
-    tax: { en: "Tax (5%)", bn: "কর (৫%)" },
     estimatedProfit: { en: "Estimated Profit", bn: "আনুমানিক লাভ" },
     total: { en: "Total", bn: "মোট" },
     checkout: { en: "Checkout", bn: "চেকআউট" },
@@ -91,9 +90,7 @@ export function PosTerminal() {
   );
   
   const cartSubtotal = cart.reduce((total, item) => total + item.subtotal, 0);
-  const taxRate = 0.05; // 5%
-  const tax = cartSubtotal * taxRate;
-  const total = cartSubtotal + tax;
+  const total = cartSubtotal;
   const totalProfit = cart.reduce((total, item) => total + item.profit, 0);
   
   React.useEffect(() => {
@@ -236,7 +233,6 @@ export function PosTerminal() {
       id: `ORD-${Date.now()}`,
       items: cart,
       subtotal: cartSubtotal,
-      tax,
       discount: 0,
       total,
       totalProfit,
@@ -383,10 +379,6 @@ export function PosTerminal() {
                         <span>{t(translations.subtotal)}</span>
                         <span>{formatCurrency(cartSubtotal)}</span>
                     </div>
-                    <div className="flex justify-between">
-                        <span>{t(translations.tax)}</span>
-                        <span>{formatCurrency(tax)}</span>
-                    </div>
                     <div className="flex justify-between text-green-600">
                         <span>{t(translations.estimatedProfit)}</span>
                         <span>{formatCurrency(totalProfit)}</span>
@@ -527,3 +519,5 @@ export function PosTerminal() {
     </div>
   );
 }
+
+    

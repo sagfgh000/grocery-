@@ -30,7 +30,6 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
     phone: { en: "Phone", bn: "ফোন" },
     address: { en: "Address", bn: "ঠিকানা" },
     subtotal: { en: "Subtotal", bn: "উপমোট" },
-    tax: { en: "Tax", bn: "কর" },
     total: { en: "Total", bn: "মোট" },
     amountPaid: { en: "Paid", bn: "পরিশোধিত" },
     amountDue: { en: "Due", bn: "বকেয়া" },
@@ -112,10 +111,6 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
                     <p>{t(translations.subtotal)}:</p>
                     <p>{formatCurrency(order.subtotal)}</p>
                 </div>
-                <div className="flex justify-between">
-                    <p>{t(translations.tax)}:</p>
-                    <p>{formatCurrency(order.tax)}</p>
-                </div>
                 <Separator className="my-1 bg-gray-400" />
                 <div className="flex justify-between font-bold text-base">
                     <p>{t(translations.total)}:</p>
@@ -150,3 +145,5 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
 });
 
 Receipt.displayName = "Receipt";
+
+    
