@@ -39,11 +39,22 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       const storedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
       const storedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
       
-      const productsToLoad = storedProducts ? JSON.parse(storedProducts) : initialProducts;
-      const ordersToLoad = storedOrders ? JSON.parse(storedOrders) : generateInitialOrders(productsToLoad);
-      
-      setProducts(productsToLoad);
-      setOrders(ordersToLoad);
+      if (storedProducts) {
+        setProducts(JSON.parse(storedProducts));
+      } else {
+        setProducts(initialProducts);
+      }
+
+      if (storedOrders) {
+        setOrders(JSON.parse(storedOrders));
+      } else {
+        // Only generate initial orders if there are initial products and no stored orders
+        if (!storedProducts) {
+          setOrders(generateInitialOrders(initialProducts));
+        } else {
+          setOrders([]);
+        }
+      }
 
     } catch (error) {
       console.error("Failed to parse data from localStorage", error);
@@ -101,8 +112,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const clearAllData = () => {
-    setProducts(initialProducts);
-    setOrders(generateInitialOrders(initialProducts));
+    // Set state to empty arrays for a fresh start
+    setProducts([]);
+    setOrders([]);
     settingsContext.setSettings({
         shopName: 'ইয়া আলী খাদ্য ভান্ডার',
         shopAddress: '123 Fresh St, Farmville, USA',
