@@ -31,7 +31,6 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
     total: { en: "Total", bn: "মোট" },
     amountPaid: { en: "Paid", bn: "পরিশোধিত" },
     amountDue: { en: "Due", bn: "বকেয়া" },
-    totalProfit: { en: "Total Profit", bn: "মোট লাভ" },
     thankYou: { en: "Thank you for shopping with us!", bn: "আমাদের সাথে কেনাকাটার জন্য আপনাকে ধন্যবাদ!" },
   };
 
@@ -118,10 +117,6 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
                       <p>{formatCurrency(order.amountDue)}</p>
                   </div>
                 )}
-                <div className="flex justify-between text-xs text-gray-600 pt-1">
-                    <p>{t(translations.totalProfit)}:</p>
-                    <p>{formatCurrency(order.totalProfit)}</p>
-                </div>
             </div>
             <Separator className="my-2 bg-gray-400" />
             <div className="text-center mt-4">
