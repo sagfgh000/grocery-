@@ -223,7 +223,7 @@ export default function DashboardPage() {
       </div>
       <div ref={dashboardRef} className="p-0 md:p-4 bg-background">
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
+          <TabsList className="grid grid-cols-2 sm:inline-flex h-auto sm:h-10">
             <TabsTrigger value="overview">{t(translations.overview)}</TabsTrigger>
             <TabsTrigger value="analytics" disabled>
               {t(translations.analytics)}
@@ -255,3 +255,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
