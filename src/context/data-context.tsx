@@ -94,7 +94,20 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addOrder = (order: Order) => {
+    // 1. Add the new order
     setOrders(prev => [order, ...prev]);
+
+    // 2. Update stock quantities
+    setProducts(prevProducts => {
+        const newProducts = [...prevProducts];
+        order.items.forEach(item => {
+            const productIndex = newProducts.findIndex(p => p.id === item.product.id);
+            if(productIndex !== -1) {
+                newProducts[productIndex].stock_quantity -= item.quantity;
+            }
+        });
+        return newProducts;
+    });
   };
   
   const updateOrder = (orderId: string, newPaymentAmount: number) => {

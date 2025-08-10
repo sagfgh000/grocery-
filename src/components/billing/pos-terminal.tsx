@@ -60,6 +60,11 @@ export function PosTerminal() {
     cartEmptyTitle: { en: "Cart is empty", bn: "কার্ট খালি" },
     cartEmptyDesc: { en: "Please add products to the cart before checkout.", bn: "চেকআউটের আগে দয়া করে কার্টে পণ্য যোগ করুন।" },
     addedToCart: { en: (product: string) => `${product} added to cart.`, bn: (product: string) => `${product} কার্টে যোগ করা হয়েছে।` },
+    notEnoughStock: { en: "Not enough stock", bn: "পর্যাপ্ত স্টক নেই" },
+    notEnoughStockDesc: {
+      en: (name: string, stock: number, unit: string) => `Only ${stock} ${unit} of ${name} available.`,
+      bn: (name: string, stock: number, unit: string) => `${name} এর মাত্র ${stock} ${unit} উপলব্ধ আছে।`,
+    },
     completeOrder: { en: "Complete Order", bn: "অর্ডার সম্পন্ন করুন" },
     amountPaid: { en: "Amount Paid", bn: "প্রদত্ত পরিমাণ" },
     amountDue: { en: "Amount Due", bn: "বকেয়া পরিমাণ" },
@@ -97,16 +102,27 @@ export function PosTerminal() {
     }
   }, [isCheckoutOpen, total]);
 
+  const checkStock = (product: Product, quantity: number) => {
+    if (quantity > product.stock_quantity) {
+      toast({
+        title: t(translations.notEnoughStock),
+        description: t(translations.notEnoughStockDesc, language === 'bn' ? product.name_bn : product.name_en, product.stock_quantity, product.unit),
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
 
   const addToCart = (product: Product) => {
+    const existingItem = cart.find(item => item.product.id === product.id);
+    const newQuantity = (existingItem?.quantity || 0) + 1;
+
     if (product.unit !== 'pcs') {
-      const existingItem = cart.find(item => item.product.id === product.id);
       openQuantityEditor(existingItem ?? { product, quantity: 1, subtotal: product.selling_price, profit: product.selling_price - product.buying_price });
     } else {
+        if (!checkStock(product, newQuantity)) return;
         setCart((prevCart) => {
-          const existingItem = prevCart.find(
-            (item) => item.product.id === product.id
-          );
           if (existingItem) {
             return prevCart.map((item) =>
               item.product.id === product.id
@@ -132,21 +148,22 @@ export function PosTerminal() {
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
+    const itemInCart = cart.find(item => item.product.id === productId);
+    if (!itemInCart) return;
+
     if (quantity <= 0) {
       removeFromCart(productId);
     } else {
-      setCart((prevCart) => {
-        const itemInCart = prevCart.find(item => item.product.id === productId);
-        if(itemInCart && itemInCart.product.unit !== 'pcs') {
-          openQuantityEditor(itemInCart);
-          return prevCart;
-        }
-        return prevCart.map((item) =>
-          item.product.id === productId
-            ? { ...item, quantity, subtotal: quantity * item.product.selling_price, profit: quantity * (item.product.selling_price - item.product.buying_price) }
-            : item
-        )
-      });
+      if(itemInCart.product.unit !== 'pcs') {
+        openQuantityEditor(itemInCart);
+        return;
+      }
+      if (!checkStock(itemInCart.product, quantity)) return;
+      setCart((prevCart) => prevCart.map((item) =>
+        item.product.id === productId
+          ? { ...item, quantity, subtotal: quantity * item.product.selling_price, profit: quantity * (item.product.selling_price - item.product.buying_price) }
+          : item
+      ));
     }
   };
   
@@ -163,6 +180,7 @@ export function PosTerminal() {
     if (isNaN(newQuantity) || newQuantity <= 0) {
         removeFromCart(product.id);
     } else {
+        if (!checkStock(product, newQuantity)) return;
         setCart((prevCart) => {
             const existingItem = prevCart.find((item) => item.product.id === product.id);
             const updatedItem = {
