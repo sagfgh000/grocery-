@@ -1,3 +1,4 @@
+
 export type Product = {
   id: string;
   name_en: string;
@@ -30,4 +31,11 @@ export type Order = {
   paymentMethod: 'cash' | 'mobile-pay' | 'card';
   cashierId: string;
   createdAt: string; // Store as ISO string for serialization
+  paymentStatus: 'paid' | 'due';
+  amountPaid: number;
+  amountDue: number;
+  customer?: {
+    id: string;
+    name: string;
+  };
 };

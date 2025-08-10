@@ -23,8 +23,11 @@ import {
         orderId: { en: "Order ID", bn: "অর্ডার আইডি" },
         date: { en: "Date", bn: "তারিখ" },
         paymentMethod: { en: "Payment Method", bn: "পেমেন্ট পদ্ধতি" },
+        paymentStatus: { en: "Payment Status", bn: "পেমেন্ট স্ট্যাটাস" },
         totalAmount: { en: "Total Amount", bn: "মোট পরিমাণ" },
-        totalProfit: { en: "Total Profit", bn: "মোট লাভ" },
+        amountDue: { en: "Amount Due", bn: "বকেয়া" },
+        paid: { en: "Paid", bn: "পরিশোধিত" },
+        due: { en: "Due", bn: "বকেয়া" },
     };
 
     const formatCurrency = (amount: number) => {
@@ -46,8 +49,9 @@ import {
                             <TableHead className="sticky left-0 bg-card">{t(translations.orderId)}</TableHead>
                             <TableHead>{t(translations.date)}</TableHead>
                             <TableHead>{t(translations.paymentMethod)}</TableHead>
+                            <TableHead>{t(translations.paymentStatus)}</TableHead>
                             <TableHead className="text-right">{t(translations.totalAmount)}</TableHead>
-                            <TableHead className="text-right">{t(translations.totalProfit)}</TableHead>
+                            <TableHead className="text-right">{t(translations.amountDue)}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -58,8 +62,15 @@ import {
                                 <TableCell>
                                     <Badge variant="outline">{order.paymentMethod}</Badge>
                                 </TableCell>
+                                <TableCell>
+                                    <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'destructive'}>
+                                      {t(translations[order.paymentStatus])}
+                                    </Badge>
+                                </TableCell>
                                 <TableCell className="text-right whitespace-nowrap">{formatCurrency(order.total)}</TableCell>
-                                <TableCell className="text-right text-green-600 whitespace-nowrap">{formatCurrency(order.totalProfit)}</TableCell>
+                                <TableCell className="text-right text-destructive whitespace-nowrap">
+                                  {order.amountDue > 0 ? formatCurrency(order.amountDue) : '-'}
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

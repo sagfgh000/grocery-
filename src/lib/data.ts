@@ -133,6 +133,9 @@ const generateRandomOrder = (id: number, date: Date, products: Product[]): Order
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
   const paymentMethods: ('cash' | 'mobile-pay' | 'card')[] = ['cash', 'card', 'mobile-pay'];
+  const isDue = Math.random() > 0.8;
+  const amountPaid = isDue ? parseFloat((total * (Math.random() * 0.5 + 0.2)).toFixed(2)) : total;
+  const amountDue = total - amountPaid;
 
   return {
     id: `ORD-${String(id).padStart(3, '0')}`,
@@ -145,6 +148,10 @@ const generateRandomOrder = (id: number, date: Date, products: Product[]): Order
     paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
     cashierId: `cashier_0${Math.ceil(Math.random() * 2)}`,
     createdAt: date.toISOString(),
+    paymentStatus: isDue ? 'due' : 'paid',
+    amountPaid: amountPaid,
+    amountDue: amountDue,
+    customer: { id: `CUST-00${Math.floor(Math.random() * 5) + 1}`, name: 'Walking Customer' }
   };
 };
 
