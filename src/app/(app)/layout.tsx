@@ -2,6 +2,7 @@ import { Sidebar, SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { LanguageProvider } from "@/context/language-context";
 import { SettingsProvider } from "@/context/settings-context";
+import { DataProvider } from "@/context/data-context";
 import { MobileHeader } from "@/components/layout/mobile-header";
 
 export default function AppLayout({
@@ -12,15 +13,17 @@ export default function AppLayout({
   return (
     <SettingsProvider>
       <LanguageProvider>
-        <SidebarProvider>
-          <Sidebar>
-            <SidebarNav />
-          </Sidebar>
-          <SidebarInset>
-            <MobileHeader />
-            {children}
-          </SidebarInset>
-        </SidebarProvider>
+        <DataProvider>
+          <SidebarProvider>
+            <Sidebar>
+              <SidebarNav />
+            </Sidebar>
+            <SidebarInset>
+              <MobileHeader />
+              {children}
+            </SidebarInset>
+          </SidebarProvider>
+        </DataProvider>
       </LanguageProvider>
     </SettingsProvider>
   );

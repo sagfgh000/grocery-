@@ -10,11 +10,14 @@ import {
     TableRow,
   } from "@/components/ui/table";
   import { Badge } from "@/components/ui/badge";
-  import { orders } from "@/lib/data";
+  import { useData } from "@/context/data-context";
   import { useLanguage } from "@/context/language-context";
+  import { useMemo } from "react";
+  import { parseISO } from "date-fns";
   
   export default function OrdersPage() {
     const { t } = useLanguage();
+    const { orders } = useData();
     const translations = {
         orders: { en: "Orders", bn: "অর্ডার" },
         orderId: { en: "Order ID", bn: "অর্ডার আইডি" },
@@ -27,6 +30,8 @@ import {
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
     }
+    
+    const parsedOrders = useMemo(() => orders.map(o => ({...o, createdAt: parseISO(o.createdAt as unknown as string)})).sort((a,b) => b.createdAt.getTime() - a.createdAt.getTime()), [orders]);
 
     return (
         <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -46,7 +51,7 @@ import {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {orders.map((order) => (
+                        {parsedOrders.map((order) => (
                             <TableRow key={order.id}>
                                 <TableCell className="font-medium sticky left-0 bg-card whitespace-nowrap">{order.id}</TableCell>
                                 <TableCell className="whitespace-nowrap">{order.createdAt.toLocaleDateString('bn-BD')}</TableCell>

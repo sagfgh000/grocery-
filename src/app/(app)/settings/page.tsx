@@ -10,15 +10,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useSettings } from "@/context/settings-context";
+import { useData } from "@/context/data-context";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/language-context";
 
 export default function SettingsPage() {
   const { settings, setSettings } = useSettings();
+  const { clearAllData } = useData();
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -31,6 +44,13 @@ export default function SettingsPage() {
       save: { en: "Save", bn: "সংরক্ষণ করুন" },
       shopDetailsSaved: { en: "Shop Details Saved", bn: "দোকানের বিবরণ সংরক্ষিত হয়েছে" },
       shopDetailsUpdated: { en: "Your shop name and address have been updated.", bn: "আপনার দোকানের নাম এবং ঠিকানা আপডেট করা হয়েছে।" },
+      dangerZone: { en: "Danger Zone", bn: "বিপজ্জনক এলাকা" },
+      clearAppData: { en: "Clear App Data", bn: "অ্যাপ ডেটা সাফ করুন" },
+      clearAppDataDesc: { en: "This will permanently delete all your products, orders, and settings. This action cannot be undone.", bn: "এটি স্থায়ীভাবে আপনার সমস্ত পণ্য, অর্ডার এবং সেটিংস মুছে ফেলবে। এই কাজটি ফিরিয়ে আনা যাবে না।" },
+      clearDataConfirmationTitle: { en: "Are you sure?", bn: "আপনি কি নিশ্চিত?" },
+      clearDataConfirmationDesc: { en: "This will permanently delete all your application data.", bn: "এটি স্থায়ীভাবে আপনার সমস্ত অ্যাপ্লিকেশন ডেটা মুছে ফেলবে।" },
+      cancel: { en: "Cancel", bn: "বাতিল করুন" },
+      confirm: { en: "Confirm", bn: "নিশ্চিত করুন" },
   };
 
   const handleShopDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,6 +89,32 @@ export default function SettingsPage() {
           </CardContent>
           <CardFooter>
             <Button onClick={handleSaveShopDetails}>{t(translations.save)}</Button>
+          </CardFooter>
+        </Card>
+
+        <Card className="border-destructive">
+          <CardHeader>
+            <CardTitle className="text-destructive">{t(translations.dangerZone)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription>{t(translations.clearAppDataDesc)}</CardDescription>
+          </CardContent>
+          <CardFooter>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">{t(translations.clearAppData)}</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t(translations.clearDataConfirmationTitle)}</AlertDialogTitle>
+                  <AlertDialogDescription>{t(translations.clearDataConfirmationDesc)}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t(translations.cancel)}</AlertDialogCancel>
+                  <AlertDialogAction onClick={clearAllData}>{t(translations.confirm)}</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </CardFooter>
         </Card>
       </div>

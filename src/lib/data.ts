@@ -1,6 +1,6 @@
 import type { Product, Order, CartItem } from './types';
 
-export const products: Product[] = [
+export const initialProducts: Product[] = [
   {
     id: 'prod_001',
     name_en: 'Fresh Apples',
@@ -107,7 +107,7 @@ export const products: Product[] = [
   },
 ];
 
-const generateRandomOrder = (id: number, date: Date): Order => {
+const generateRandomOrder = (id: number, date: Date, products: Product[]): Order => {
   const orderItems: CartItem[] = [];
   const numItems = Math.floor(Math.random() * 5) + 1;
   let subtotal = 0;
@@ -144,11 +144,11 @@ const generateRandomOrder = (id: number, date: Date): Order => {
     totalProfit,
     paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
     cashierId: `cashier_0${Math.ceil(Math.random() * 2)}`,
-    createdAt: date,
+    createdAt: date.toISOString(),
   };
 };
 
-const generateOrders = (): Order[] => {
+export const generateInitialOrders = (products: Product[]): Order[] => {
     const orderList: Order[] = [];
     const today = new Date();
     let orderId = 1;
@@ -158,10 +158,8 @@ const generateOrders = (): Order[] => {
         date.setDate(today.getDate() - i);
         const numOrders = Math.floor(Math.random() * 5) + 2; // 2 to 6 orders per day
         for (let j = 0; j < numOrders; j++) {
-            orderList.push(generateRandomOrder(orderId++, date));
+            orderList.push(generateRandomOrder(orderId++, date, products));
         }
     }
     return orderList.reverse();
 }
-
-export const orders: Order[] = generateOrders();

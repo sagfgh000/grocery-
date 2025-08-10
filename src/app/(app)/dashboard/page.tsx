@@ -19,18 +19,19 @@ import { CategoryChart } from "@/components/dashboard/category-chart";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { useLanguage } from "@/context/language-context";
 import { DateRange } from "react-day-picker";
-import { subDays, startOfMonth, endOfMonth, format, eachDayOfInterval, isWithinInterval } from "date-fns";
+import { subDays, startOfMonth, endOfMonth, format, eachDayOfInterval, isWithinInterval, parseISO } from "date-fns";
 import { bn, enUS } from "date-fns/locale";
-import { orders, products } from "@/lib/data";
+import { useData } from "@/context/data-context";
+import { Order } from "@/lib/types";
 
 export default function DashboardPage() {
   const { language, t } = useLanguage();
   const dashboardRef = React.useRef(null);
+  const { products, orders } = useData();
   
   const [date, setDate] = React.useState<DateRange | undefined>();
 
   React.useEffect(() => {
-    // Set initial date range on the client to avoid hydration mismatch
     setDate({
         from: startOfMonth(new Date()),
         to: endOfMonth(new Date()),
@@ -66,16 +67,18 @@ export default function DashboardPage() {
     return new Intl.NumberFormat(language === 'bn' ? 'bn-BD' : 'en-US', { style: 'currency', currency: 'BDT' }).format(amount);
   }
   
-  const formatDate = (date: Date) => {
+  const formatDate = (d: Date) => {
       const locale = language === 'bn' ? bn : enUS;
-      return format(date, "LLL dd, y", { locale });
+      return format(d, "LLL dd, y", { locale });
   }
+
+  const parsedOrders = React.useMemo(() => orders.map(o => ({...o, createdAt: parseISO(o.createdAt as unknown as string)})), [orders]);
 
   const filteredOrders = React.useMemo(() => {
     if (!date?.from) return [];
     const toDate = date.to ?? date.from;
-    return orders.filter(order => isWithinInterval(order.createdAt, { start: date.from!, end: toDate }));
-  }, [date]);
+    return parsedOrders.filter(order => isWithinInterval(order.createdAt, { start: date.from!, end: toDate }));
+  }, [date, parsedOrders]);
 
   const previousPeriod = React.useMemo(() => {
     if (!date?.from || !date?.to) return { from: subDays(new Date(), 30), to: new Date() };
@@ -88,8 +91,8 @@ export default function DashboardPage() {
 
   const previousOrders = React.useMemo(() => {
     if (!previousPeriod) return [];
-    return orders.filter(order => isWithinInterval(order.createdAt, { start: previousPeriod.from, end: previousPeriod.to }));
-  }, [previousPeriod]);
+    return parsedOrders.filter(order => isWithinInterval(order.createdAt, { start: previousPeriod.from, end: previousPeriod.to }));
+  }, [previousPeriod, parsedOrders]);
 
   const kpiData = React.useMemo(() => {
     if (!date) {
@@ -131,7 +134,7 @@ export default function DashboardPage() {
       productsInStock: products.length.toString(),
       stockDesc: `${lowStockCount} ${t(translations.productsBelowThreshold)}`,
     }
-  }, [filteredOrders, previousOrders, date, t, language]);
+  }, [filteredOrders, previousOrders, date, t, language, products]);
   
   const salesChartData = React.useMemo(() => {
     if (!date?.from) return [];
@@ -190,7 +193,7 @@ export default function DashboardPage() {
       return translationFunc(filteredOrders.length, formatDate(date.from), formatDate(toDate));
     }
     return '';
-  }, [filteredOrders, date, language]);
+  }, [filteredOrders, date, language, t]);
 
   const handleDownload = () => {
     const input = dashboardRef.current;

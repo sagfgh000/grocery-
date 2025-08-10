@@ -10,6 +10,7 @@ import { type Order } from "@/lib/types";
 import { useLanguage } from "@/context/language-context";
 import { Download, Printer } from "lucide-react";
 import { useSettings } from "@/context/settings-context";
+import { parseISO } from "date-fns";
 
 interface ReceiptProps {
   order: Order;
@@ -66,6 +67,8 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
   }
+  
+  const orderDate = parseISO(order.createdAt as unknown as string);
 
   return (
     <div className="bg-white text-black p-4 font-mono text-sm" ref={ref}>
@@ -74,7 +77,7 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
                 <h2 className="text-xl font-bold">{settings.shopName}</h2>
                 <p>{settings.shopAddress}</p>
                 <p>{t(translations.orderId)}: {order.id}</p>
-                <p>{t(translations.date)}: {order.createdAt.toLocaleString('bn-BD')}</p>
+                <p>{t(translations.date)}: {orderDate.toLocaleString('bn-BD')}</p>
             </div>
             <Separator className="my-2 bg-gray-400" />
             <div>

@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { products } from "@/lib/data";
+import { useData } from "@/context/data-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Minus, X, Search } from "lucide-react";
-import { type CartItem, type Product } from "@/lib/types";
+import { type CartItem, type Product, type Order } from "@/lib/types";
 import { useLanguage } from "@/context/language-context";
 import {
   Dialog,
@@ -30,8 +30,9 @@ export function PosTerminal() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const { toast } = useToast();
   const { language, t } = useLanguage();
+  const { products, addOrder } = useData();
   const [isReceiptOpen, setReceiptOpen] = React.useState(false);
-  const [lastOrder, setLastOrder] = React.useState<any>(null);
+  const [lastOrder, setLastOrder] = React.useState<Order | null>(null);
   const isMobile = useIsMobile();
 
   const translations = {
@@ -118,7 +119,7 @@ export function PosTerminal() {
       })
       return;
     }
-    const orderData = {
+    const orderData: Order = {
       id: `ORD-${Date.now()}`,
       items: cart,
       subtotal: cartSubtotal,
@@ -128,8 +129,9 @@ export function PosTerminal() {
       totalProfit,
       paymentMethod: 'cash' as const,
       cashierId: 'cashier_01',
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     };
+    addOrder(orderData);
     setLastOrder(orderData);
     setReceiptOpen(true);
     setCart([]);

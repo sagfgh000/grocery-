@@ -29,5 +29,5 @@ export type Order = {
   totalProfit: number;
   paymentMethod: 'cash' | 'mobile-pay' | 'card';
   cashierId: string;
-  createdAt: Date;
+  createdAt: string; // Store as ISO string for serialization
 };
