@@ -117,12 +117,13 @@ export function AddProductDialog({ isOpen, onOpenChange, onProductAdd }: AddProd
         fileReadError: { en: "Failed to read file.", bn: "ফাইল পড়তে ব্যর্থ হয়েছে।" },
     };
 
-    const handleSuggestDetails = async () => {
-        const productName = form.getValues("name_en");
+    const handleSuggestDetails = async (name: 'name_en' | 'name_bn') => {
+        const productName = form.getValues(name);
         if (!productName) return;
         setIsSuggestingDetails(true);
         try {
             const result = await suggestProductDetails({ productName });
+            form.setValue("name_en", result.name_en);
             form.setValue("name_bn", result.name_bn);
             form.setValue("sku", result.sku);
             form.setValue("category", result.category);
@@ -174,7 +175,7 @@ export function AddProductDialog({ isOpen, onOpenChange, onProductAdd }: AddProd
         const newProduct: Product = {
             id: `prod_${Date.now()}`,
             ...data,
-            imageUrl: data.imageUrl || `https://placehold.co/300x300.png?text=${data.name_en.charAt(0)}`
+            imageUrl: data.imageUrl ? data.imageUrl.trimEnd() : `https://placehold.co/300x300.png?text=${data.name_en.charAt(0)}`
         };
         onProductAdd(newProduct);
         onOpenChange(false);
@@ -207,7 +208,7 @@ export function AddProductDialog({ isOpen, onOpenChange, onProductAdd }: AddProd
                            <FormControl>
                                 <Input placeholder={t(translations.egFreshApples)} {...field} />
                             </FormControl>
-                            <Button type="button" variant="outline" onClick={handleSuggestDetails} disabled={isSuggestingDetails}>
+                            <Button type="button" variant="outline" onClick={() => handleSuggestDetails('name_en')} disabled={isSuggestingDetails}>
                                {isSuggestingDetails ? <Loader2 className="animate-spin" /> : <Wand2 />}
                                <span className="ml-2 hidden sm:inline">{t(translations.suggestDetails)}</span>
                             </Button>
@@ -222,9 +223,15 @@ export function AddProductDialog({ isOpen, onOpenChange, onProductAdd }: AddProd
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>{t(translations.bengaliName)}</FormLabel>
-                        <FormControl>
-                            <Input placeholder={t(translations.egTajaApel)} {...field} />
-                        </FormControl>
+                         <div className="flex items-center gap-2">
+                            <FormControl>
+                                <Input placeholder={t(translations.egTajaApel)} {...field} />
+                            </FormControl>
+                            <Button type="button" variant="outline" onClick={() => handleSuggestDetails('name_bn')} disabled={isSuggestingDetails}>
+                               {isSuggestingDetails ? <Loader2 className="animate-spin" /> : <Wand2 />}
+                               <span className="ml-2 hidden sm:inline">{t(translations.suggestDetails)}</span>
+                            </Button>
+                        </div>
                         <FormMessage />
                         </FormItem>
                     )}
