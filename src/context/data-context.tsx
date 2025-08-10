@@ -4,9 +4,16 @@
 import React, { createContext, useState, useContext, type ReactNode, useEffect } from 'react';
 import { Product, Order } from '@/lib/types';
 import { initialProducts, generateInitialOrders } from '@/lib/data';
+import { useSettings } from './settings-context';
 
 const PRODUCTS_STORAGE_KEY = 'grocerEaseProducts';
 const ORDERS_STORAGE_KEY = 'grocerEaseOrders';
+
+interface AllData {
+  products: Product[];
+  orders: Order[];
+  settings: any;
+}
 
 interface DataContextType {
   products: Product[];
@@ -15,6 +22,8 @@ interface DataContextType {
   addOrder: (order: Order) => void;
   updateOrder: (orderId: string, newPaymentAmount: number) => void;
   clearAllData: () => void;
+  exportData: () => AllData;
+  importData: (data: AllData) => boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -23,6 +32,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const settingsContext = useSettings();
 
   useEffect(() => {
     try {
@@ -93,6 +103,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const clearAllData = () => {
     setProducts(initialProducts);
     setOrders(generateInitialOrders(initialProducts));
+    settingsContext.setSettings({
+        shopName: 'ইয়া আলী খাদ্য ভান্ডার',
+        shopAddress: '123 Fresh St, Farmville, USA',
+    });
     
     // Clear all relevant keys from local storage
     localStorage.removeItem(PRODUCTS_STORAGE_KEY);
@@ -101,8 +115,27 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('grocerEaseLanguage');
   }
 
+  const exportData = (): AllData => {
+    return {
+      products,
+      orders,
+      settings: settingsContext.settings
+    };
+  };
+
+  const importData = (data: AllData): boolean => {
+    if (data && data.products && data.orders && data.settings) {
+        setProducts(data.products);
+        setOrders(data.orders);
+        settingsContext.setSettings(data.settings);
+        return true;
+    }
+    return false;
+  };
+
+
   return (
-    <DataContext.Provider value={{ products, orders, addProduct, addOrder, updateOrder, clearAllData }}>
+    <DataContext.Provider value={{ products, orders, addProduct, addOrder, updateOrder, clearAllData, exportData, importData }}>
       {!isInitialLoad && children}
     </DataContext.Provider>
   );
