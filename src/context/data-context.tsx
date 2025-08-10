@@ -8,6 +8,7 @@ import { useSettings } from './settings-context';
 
 const PRODUCTS_STORAGE_KEY = 'grocerEaseProducts';
 const ORDERS_STORAGE_KEY = 'grocerEaseOrders';
+const DATA_CLEARED_FLAG = 'grocerEaseDataCleared';
 
 interface AllData {
   products: Product[];
@@ -38,26 +39,29 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     try {
       const storedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
       const storedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
-      
-      if (storedProducts) {
-        setProducts(JSON.parse(storedProducts));
-      } else {
-        setProducts(initialProducts);
-      }
+      const dataCleared = localStorage.getItem(DATA_CLEARED_FLAG);
 
-      if (storedOrders) {
-        setOrders(JSON.parse(storedOrders));
-      } else {
-        // Only generate initial orders if there are initial products and no stored orders
-        if (!storedProducts) {
-          setOrders(generateInitialOrders(initialProducts));
+      // If data has been explicitly cleared, start with empty state.
+      if (dataCleared === 'true') {
+        setProducts([]);
+        setOrders([]);
+      } else if (storedProducts) {
+        // If there's stored data, use it.
+        setProducts(JSON.parse(storedProducts));
+        if (storedOrders) {
+          setOrders(JSON.parse(storedOrders));
         } else {
           setOrders([]);
         }
+      } else {
+        // This is a fresh start, load initial sample data.
+        setProducts(initialProducts);
+        setOrders(generateInitialOrders(initialProducts));
       }
 
     } catch (error) {
       console.error("Failed to parse data from localStorage", error);
+      // Fallback to sample data in case of any error.
       setProducts(initialProducts);
       setOrders(generateInitialOrders(initialProducts));
     } finally {
@@ -125,6 +129,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem(ORDERS_STORAGE_KEY);
     localStorage.removeItem('grocerEaseSettings');
     localStorage.removeItem('grocerEaseLanguage');
+    // Set a flag indicating data has been cleared.
+    localStorage.setItem(DATA_CLEARED_FLAG, 'true');
   }
 
   const exportData = (): AllData => {
@@ -140,6 +146,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         setProducts(data.products);
         setOrders(data.orders);
         settingsContext.setSettings(data.settings);
+        // When importing data, we assume the user wants to keep it.
+        localStorage.removeItem(DATA_CLEARED_FLAG);
         return true;
     }
     return false;
