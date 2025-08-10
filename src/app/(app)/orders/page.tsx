@@ -33,6 +33,7 @@ import {
         amountDue: { en: "Amount Due", bn: "বকেয়া" },
         paid: { en: "Paid", bn: "পরিশোধিত" },
         due: { en: "Due", bn: "বকেয়া" },
+        walkingCustomer: { en: "Walking Customer", bn: "সাধারণ গ্রাহক"}
     };
 
     const formatCurrency = (amount: number) => {
@@ -93,7 +94,7 @@ import {
                         {parsedOrders.map((order) => (
                             <TableRow key={order.id} onClick={() => handleOrderSelect(order)} className={order.paymentStatus === 'due' ? "cursor-pointer" : ""}>
                                 <TableCell className="font-medium sticky left-0 bg-card whitespace-nowrap">{order.id}</TableCell>
-                                <TableCell className="whitespace-nowrap">{order.customer?.name || 'N/A'}</TableCell>
+                                <TableCell className="whitespace-nowrap">{order.customer?.name || t(translations.walkingCustomer)}</TableCell>
                                 <TableCell className="whitespace-nowrap">{order.createdAt.toLocaleDateString('bn-BD')}</TableCell>
                                 <TableCell>
                                     <Badge variant="outline">{order.paymentMethod}</Badge>
