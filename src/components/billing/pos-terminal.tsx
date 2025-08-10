@@ -225,6 +225,18 @@ export function PosTerminal() {
   const ReceiptDialogHeader = isMobile ? DrawerHeader : DialogHeader;
   const ReceiptDialogTitle = isMobile ? DrawerTitle : DialogTitle;
 
+  const handlePresetQuantity = (amount: number) => {
+    if (!editingQuantity) return;
+    let finalAmount = amount;
+    const unit = editingQuantity.item.product.unit;
+    if(unit === 'kg' && amount < 1) { // Assuming amounts < 1 are in grams
+        // no conversion needed as input is in kg
+    } else if (unit === 'g' && amount >= 1) { // amount is in kg, but unit is g
+        finalAmount = amount * 1000;
+    }
+    setEditingQuantity({ ...editingQuantity, input: finalAmount.toString() });
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 h-full">
       <div className="lg:col-span-2 h-full flex flex-col p-4 bg-background">
@@ -342,16 +354,34 @@ export function PosTerminal() {
                 <DialogHeader>
                     <DialogTitle>{t(translations.enterQuantityFor, language === 'bn' ? editingQuantity.item.product.name_bn : editingQuantity.item.product.name_en)}</DialogTitle>
                 </DialogHeader>
-                <div className="py-4">
-                    <Label htmlFor="quantity">{t(translations.quantity)} ({editingQuantity.item.product.unit})</Label>
-                    <Input 
-                        id="quantity" 
-                        type="number"
-                        value={editingQuantity.input}
-                        onChange={(e) => setEditingQuantity({...editingQuantity, input: e.target.value})}
-                        onKeyDown={(e) => e.key === 'Enter' && handleQuantityUpdate()}
-                        autoFocus
-                    />
+                <div className="py-4 space-y-4">
+                    <div>
+                      <Label htmlFor="quantity">{t(translations.quantity)} ({editingQuantity.item.product.unit})</Label>
+                      <Input 
+                          id="quantity" 
+                          type="number"
+                          value={editingQuantity.input}
+                          onChange={(e) => setEditingQuantity({...editingQuantity, input: e.target.value})}
+                          onKeyDown={(e) => e.key === 'Enter' && handleQuantityUpdate()}
+                          autoFocus
+                      />
+                    </div>
+                    {editingQuantity.item.product.unit === 'kg' && (
+                       <div className="grid grid-cols-4 gap-2">
+                          <Button variant="outline" onClick={() => handlePresetQuantity(0.100)}>100g</Button>
+                          <Button variant="outline" onClick={() => handlePresetQuantity(0.250)}>250g</Button>
+                          <Button variant="outline" onClick={() => handlePresetQuantity(0.500)}>500g</Button>
+                          <Button variant="outline" onClick={() => handlePresetQuantity(1)}>1kg</Button>
+                       </div>
+                    )}
+                     {editingQuantity.item.product.unit === 'g' && (
+                       <div className="grid grid-cols-4 gap-2">
+                          <Button variant="outline" onClick={() => handlePresetQuantity(100)}>100g</Button>
+                          <Button variant="outline" onClick={() => handlePresetQuantity(250)}>250g</Button>
+                          <Button variant="outline" onClick={() => handlePresetQuantity(500)}>500g</Button>
+                          <Button variant="outline" onClick={() => handlePresetQuantity(1000)}>1kg</Button>
+                       </div>
+                    )}
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => setEditingQuantity(null)}>{t(translations.cancel)}</Button>
