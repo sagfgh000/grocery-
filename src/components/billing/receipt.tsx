@@ -26,6 +26,9 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
     download: { en: "Download", bn: "ডাউনলোড" },
     orderId: { en: "Order ID", bn: "অর্ডার আইডি" },
     date: { en: "Date", bn: "তারিখ" },
+    customer: { en: "Customer", bn: "গ্রাহক" },
+    phone: { en: "Phone", bn: "ফোন" },
+    address: { en: "Address", bn: "ঠিকানা" },
     subtotal: { en: "Subtotal", bn: "উপমোট" },
     tax: { en: "Tax", bn: "কর" },
     total: { en: "Total", bn: "মোট" },
@@ -77,8 +80,19 @@ export const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>(({ order }
             <div className="text-center mb-4">
                 <h2 className="text-xl font-bold">{settings.shopName}</h2>
                 <p>{settings.shopAddress}</p>
+            </div>
+            <Separator className="my-2 bg-gray-400" />
+            <div className="text-xs">
                 <p>{t(translations.orderId)}: {order.id}</p>
                 <p>{t(translations.date)}: {orderDate.toLocaleString('bn-BD')}</p>
+                {order.customer && (
+                    <div className="mt-2">
+                        <p className="font-bold">{t(translations.customer)}:</p>
+                        <p>{order.customer.name}</p>
+                        {order.customer.phone && <p>{t(translations.phone)}: {order.customer.phone}</p>}
+                        {order.customer.address && <p>{t(translations.address)}: {order.customer.address}</p>}
+                    </div>
+                )}
             </div>
             <Separator className="my-2 bg-gray-400" />
             <div>

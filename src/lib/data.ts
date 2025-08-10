@@ -1,3 +1,4 @@
+
 import type { Product, Order, CartItem } from './types';
 
 export const initialProducts: Product[] = [
@@ -12,7 +13,7 @@ export const initialProducts: Product[] = [
     buying_price: 180,
     category: 'Fruits',
     low_stock_threshold: 10,
-    imageUrl: 'https://placehold.co/300x300.png',
+    imageUrl: 'https://i.ibb.co/yFrKXBp/Apples-184940975-770x533-1-jpg.jpg',
   },
   {
     id: 'prod_002',

@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Minus, X, Search, Pencil } from "lucide-react";
-import { type CartItem, type Product, type Order } from "@/lib/types";
+import { Plus, Minus, X, Search, Pencil, UserPlus } from "lucide-react";
+import { type CartItem, type Product, type Order, type Customer } from "@/lib/types";
 import { useLanguage } from "@/context/language-context";
 import {
   Dialog,
@@ -26,6 +26,7 @@ import { Receipt } from "./receipt";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 
 
 export function PosTerminal() {
@@ -39,6 +40,8 @@ export function PosTerminal() {
   const [amountPaid, setAmountPaid] = React.useState(0);
   const [isCheckoutOpen, setCheckoutOpen] = React.useState(false);
   const [editingQuantity, setEditingQuantity] = React.useState<{item: CartItem, input: string} | null>(null);
+  const [customer, setCustomer] = React.useState<Partial<Customer>>({});
+  const [isCustomerDialogOpen, setCustomerDialogOpen] = React.useState(false);
 
   const isMobile = useIsMobile();
 
@@ -66,6 +69,14 @@ export function PosTerminal() {
     cancel: { en: "Cancel", bn: "বাতিল" },
     update: { en: "Update", bn: "আপডেট" },
     enterQuantityFor: { en: (name: string) => `Enter quantity for ${name}`, bn: (name: string) => `${name} এর পরিমাণ লিখুন` },
+    customerInfo: { en: "Customer Information", bn: "গ্রাহকের তথ্য" },
+    customerInfoDesc: { en: "Add customer details for this order.", bn: "এই অর্ডারের জন্য গ্রাহকের বিবরণ যোগ করুন।" },
+    customerName: { en: "Customer Name", bn: "গ্রাহকের নাম" },
+    phoneNumber: { en: "Phone Number", bn: "ফোন নম্বর" },
+    address: { en: "Address", bn: "ঠিকানা" },
+    saveCustomer: { en: "Save Customer", bn: "গ্রাহক সংরক্ষণ করুন" },
+    addCustomer: { en: "Add Customer", bn: "গ্রাহক যোগ করুন" },
+    editCustomer: { en: "Edit Customer", bn: "গ্রাহক সম্পাদনা করুন" },
   };
 
   const filteredProducts = products.filter(
@@ -186,12 +197,22 @@ export function PosTerminal() {
       })
       return;
     }
-    setCheckoutOpen(true);
+    const amountDue = total - amountPaid;
+    if(amountDue > 0 && !customer.name) {
+      setCustomerDialogOpen(true);
+    } else {
+      setCheckoutOpen(true);
+    }
   };
 
   const handleFinalizeOrder = (paymentMethod: Order['paymentMethod']) => {
     const finalAmountPaid = Number(amountPaid);
     const amountDue = total - finalAmountPaid;
+
+    if(amountDue > 0 && !customer.name) {
+      setCustomerDialogOpen(true);
+      return;
+    }
     
     const orderData: Order = {
       id: `ORD-${Date.now()}`,
@@ -206,7 +227,8 @@ export function PosTerminal() {
       createdAt: new Date().toISOString(),
       paymentStatus: amountDue > 0 ? 'due' : 'paid',
       amountPaid: finalAmountPaid,
-      amountDue
+      amountDue,
+      customer: customer.name ? { id: `CUST-${Date.now()}`, ...customer } as Customer : undefined,
     };
     addOrder(orderData);
     setLastOrder(orderData);
@@ -214,6 +236,7 @@ export function PosTerminal() {
     setCheckoutOpen(false);
     setCart([]);
     setAmountPaid(0);
+    setCustomer({});
   }
 
   const formatCurrency = (amount: number) => {
@@ -235,6 +258,18 @@ export function PosTerminal() {
         finalAmount = amount * 1000;
     }
     setEditingQuantity({ ...editingQuantity, input: finalAmount.toString() });
+  }
+
+  const handleSaveCustomer = () => {
+    if(customer.name) {
+      setCustomerDialogOpen(false);
+      setCheckoutOpen(true);
+    } else {
+      toast({
+        title: "Customer name is required",
+        variant: "destructive"
+      })
+    }
   }
 
   return (
@@ -275,8 +310,12 @@ export function PosTerminal() {
 
       <div className="col-span-1 h-full flex flex-col p-4 bg-card border-l">
         <Card className="flex-1 flex flex-col">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{t(translations.currentOrder)}</CardTitle>
+                <Button variant="outline" size="sm" onClick={() => setCustomerDialogOpen(true)}>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  {customer.name ? t(translations.editCustomer) : t(translations.addCustomer)}
+                </Button>
             </CardHeader>
             <ScrollArea className="flex-1">
                 <CardContent className="space-y-4">
@@ -320,6 +359,7 @@ export function PosTerminal() {
                 </CardContent>
             </ScrollArea>
             <div className="p-6 border-t">
+                {customer.name && <p className="text-sm text-muted-foreground mb-2">Customer: {customer.name}</p>}
                 <div className="space-y-2">
                     <div className="flex justify-between">
                         <span>{t(translations.subtotal)}</span>
@@ -391,6 +431,35 @@ export function PosTerminal() {
         </Dialog>
       )}
 
+      {/* Customer Dialog */}
+      <Dialog open={isCustomerDialogOpen} onOpenChange={setCustomerDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t(translations.customerInfo)}</DialogTitle>
+            <DialogClose />
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="customer-name">{t(translations.customerName)} *</Label>
+              <Input id="customer-name" value={customer.name ?? ''} onChange={(e) => setCustomer(c => ({...c, name: e.target.value}))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="customer-phone">{t(translations.phoneNumber)}</Label>
+              <Input id="customer-phone" value={customer.phone ?? ''} onChange={(e) => setCustomer(c => ({...c, phone: e.target.value}))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="customer-address">{t(translations.address)}</Label>
+              <Textarea id="customer-address" value={customer.address ?? ''} onChange={(e) => setCustomer(c => ({...c, address: e.target.value}))} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCustomerDialogOpen(false)}>{t(translations.cancel)}</Button>
+            <Button onClick={handleSaveCustomer}>{t(translations.saveCustomer)}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
       {/* Checkout Dialog */}
       <Dialog open={isCheckoutOpen} onOpenChange={setCheckoutOpen}>
         <DialogContent>
@@ -398,6 +467,7 @@ export function PosTerminal() {
             <DialogTitle>{t(translations.completeOrder)}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {customer.name && <p className="text-sm font-medium">Customer: {customer.name}</p>}
             <div className="flex justify-between text-lg font-bold">
               <span>{t(translations.total)}:</span>
               <span>{formatCurrency(total)}</span>

@@ -25,6 +25,7 @@ import {
     const translations = {
         orders: { en: "Orders", bn: "অর্ডার" },
         orderId: { en: "Order ID", bn: "অর্ডার আইডি" },
+        customer: { en: "Customer", bn: "গ্রাহক" },
         date: { en: "Date", bn: "তারিখ" },
         paymentMethod: { en: "Payment Method", bn: "পেমেন্ট পদ্ধতি" },
         paymentStatus: { en: "Payment Status", bn: "পেমেন্ট স্ট্যাটাস" },
@@ -42,29 +43,31 @@ import {
 
     const getPaymentStatusTranslation = (status: 'paid' | 'due') => {
         const statusTranslations = {
-            paid: t({ en: "Paid", bn: "পরিশোধিত" }),
-            due: t({ en: "Due", bn: "বকেয়া" }),
+            paid: { en: "Paid", bn: "পরিশোধিত" },
+            due: { en: "Due", bn: "বকেয়া" },
         };
-        return statusTranslations[status] || status;
+        return t(statusTranslations[status]);
     }
     
     const handleOrderSelect = (order: Order) => {
-        setSelectedOrder(order);
+        if(order.paymentStatus === 'due') {
+            setSelectedOrder(order);
+        }
     }
 
     const handlePaymentUpdate = (orderId: string, newPayment: number) => {
         updateOrder(orderId, newPayment);
-        const updatedOrder = orders.find(o => o.id === orderId);
-        if(updatedOrder) {
-            const newAmountPaid = updatedOrder.amountPaid + newPayment;
-            const newAmountDue = updatedOrder.total - newAmountPaid;
-            setSelectedOrder({
-                ...updatedOrder,
+        setSelectedOrder(prev => {
+            if(!prev) return null;
+            const newAmountPaid = prev.amountPaid + newPayment;
+            const newAmountDue = prev.total - newAmountPaid;
+            return {
+                ...prev,
                 amountPaid: newAmountPaid,
                 amountDue: newAmountDue,
                 paymentStatus: newAmountDue <= 0 ? 'paid' : 'due',
-            });
-        }
+            }
+        });
     }
 
     return (
@@ -78,6 +81,7 @@ import {
                     <TableHeader>
                         <TableRow>
                             <TableHead className="sticky left-0 bg-card">{t(translations.orderId)}</TableHead>
+                            <TableHead>{t(translations.customer)}</TableHead>
                             <TableHead>{t(translations.date)}</TableHead>
                             <TableHead>{t(translations.paymentMethod)}</TableHead>
                             <TableHead>{t(translations.paymentStatus)}</TableHead>
@@ -87,8 +91,9 @@ import {
                     </TableHeader>
                     <TableBody>
                         {parsedOrders.map((order) => (
-                            <TableRow key={order.id} onClick={() => handleOrderSelect(order)} className="cursor-pointer">
+                            <TableRow key={order.id} onClick={() => handleOrderSelect(order)} className={order.paymentStatus === 'due' ? "cursor-pointer" : ""}>
                                 <TableCell className="font-medium sticky left-0 bg-card whitespace-nowrap">{order.id}</TableCell>
+                                <TableCell className="whitespace-nowrap">{order.customer?.name || 'N/A'}</TableCell>
                                 <TableCell className="whitespace-nowrap">{order.createdAt.toLocaleDateString('bn-BD')}</TableCell>
                                 <TableCell>
                                     <Badge variant="outline">{order.paymentMethod}</Badge>

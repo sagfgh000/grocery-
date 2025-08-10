@@ -30,6 +30,7 @@ export function UpdatePaymentDialog({ isOpen, onOpenChange, order, onUpdatePayme
   const translations = {
     updatePayment: { en: "Update Payment", bn: "পেমেন্ট আপডেট করুন" },
     orderId: { en: "Order ID", bn: "অর্ডার আইডি" },
+    customerName: { en: "Customer", bn: "গ্রাহক" },
     totalAmount: { en: "Total Amount", bn: "মোট পরিমাণ" },
     amountPaid: { en: "Amount Paid", bn: "পরিশোধিত পরিমাণ" },
     amountDue: { en: "Amount Due", bn: "বকেয়া পরিমাণ" },
@@ -51,6 +52,12 @@ export function UpdatePaymentDialog({ isOpen, onOpenChange, order, onUpdatePayme
     }
   };
 
+  React.useEffect(() => {
+    if(isOpen) {
+      setPaymentAmount("");
+    }
+  }, [isOpen])
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -59,6 +66,12 @@ export function UpdatePaymentDialog({ isOpen, onOpenChange, order, onUpdatePayme
           <DialogDescription>{t(translations.orderId)}: {order.id}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
+          {order.customer?.name && 
+            <div>
+                <p className="font-medium">{t(translations.customerName)}</p>
+                <p>{order.customer.name}</p>
+            </div>
+          }
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="font-medium">{t(translations.totalAmount)}</p>

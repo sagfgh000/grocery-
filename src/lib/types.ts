@@ -20,6 +20,13 @@ export type CartItem = {
   profit: number;
 };
 
+export type Customer = {
+  id: string;
+  name: string;
+  phone?: string;
+  address?: string;
+}
+
 export type Order = {
   id: string;
   items: CartItem[];
@@ -34,8 +41,5 @@ export type Order = {
   paymentStatus: 'paid' | 'due';
   amountPaid: number;
   amountDue: number;
-  customer?: {
-    id: string;
-    name: string;
-  };
+  customer?: Customer;
 };
