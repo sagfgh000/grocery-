@@ -180,7 +180,7 @@ export function AddProductDialog({ isOpen, onOpenChange, onProductAdd }: AddProd
                             </Button>
                         </div>
                         <div className="flex items-center gap-4">
-                            {field.value && <Image src={field.value} alt="Product preview" width={64} height={64} className="rounded-md object-cover mt-2" />}
+                            {field.value && <Image src={field.value.trim()} alt="Product preview" width={64} height={64} className="rounded-md object-cover mt-2" />}
                             <FormDescription>{t(translations.imageUrlDesc)}</FormDescription>
                         </div>
                         <FormMessage />
