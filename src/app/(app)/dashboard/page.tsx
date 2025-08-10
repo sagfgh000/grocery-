@@ -205,7 +205,13 @@ export default function DashboardPage() {
   const recentSalesDescription = React.useMemo(() => {
     if (!date?.from) return "";
     const toDate = date.to ?? date.from;
-    return t(translations.recentSalesDesc, filteredOrders.length, formatDate(date.from), formatDate(toDate));
+    const fromDateFormatted = formatDate(date.from);
+    const toDateFormatted = formatDate(toDate);
+    const translationFn = translations.recentSalesDesc[language];
+    if (typeof translationFn === 'function') {
+      return translationFn(filteredOrders.length, fromDateFormatted, toDateFormatted);
+    }
+    return '';
   }, [filteredOrders, date, language, t]);
 
   const handleDownload = () => {

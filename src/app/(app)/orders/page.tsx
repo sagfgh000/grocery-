@@ -101,7 +101,7 @@ import {
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'destructive'}>
-                                      {getPaymentStatusTranslation(order.paymentStatus)}
+                                      {t(translations[order.paymentStatus])}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right whitespace-nowrap">{formatCurrency(order.total)}</TableCell>

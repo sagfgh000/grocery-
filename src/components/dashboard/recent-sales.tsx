@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Order } from "@/lib/types";
+import { useLanguage } from "@/context/language-context";
 
 interface RecentSalesProps {
     orders: Order[];
@@ -14,6 +15,12 @@ interface RecentSalesProps {
 }
 
 export function RecentSales({ orders, title, description }: RecentSalesProps) {
+  const { t } = useLanguage();
+
+  const translations = {
+      walkingCustomer: { en: "Walking Customer", bn: "সাধারণ গ্রাহক"}
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(amount);
   }
@@ -33,7 +40,7 @@ export function RecentSales({ orders, title, description }: RecentSalesProps) {
                 <AvatarFallback>{order.customer?.name?.charAt(0) || 'C'}</AvatarFallback>
               </Avatar>
               <div className="ml-4 space-y-1">
-                <p className="text-sm font-medium leading-none">{order.customer?.name || 'Customer'}</p>
+                <p className="text-sm font-medium leading-none">{order.customer?.name || t(translations.walkingCustomer)}</p>
                 <p className="text-sm text-muted-foreground">{order.id}</p>
               </div>
               <div className="ml-auto font-medium">{formatCurrency(order.total)}</div>
