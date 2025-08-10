@@ -36,6 +36,14 @@ import {
     
     const parsedOrders = useMemo(() => orders.map(o => ({...o, createdAt: parseISO(o.createdAt as unknown as string)})).sort((a,b) => b.createdAt.getTime() - a.createdAt.getTime()), [orders]);
 
+    const getPaymentStatusTranslation = (status: 'paid' | 'due') => {
+        const statusTranslations = {
+            paid: translations.paid,
+            due: translations.due,
+        };
+        return t(statusTranslations[status]);
+    }
+
     return (
         <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
@@ -64,7 +72,7 @@ import {
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'destructive'}>
-                                      {t(translations[order.paymentStatus as keyof typeof translations])}
+                                      {getPaymentStatusTranslation(order.paymentStatus)}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right whitespace-nowrap">{formatCurrency(order.total)}</TableCell>

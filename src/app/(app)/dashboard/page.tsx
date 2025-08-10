@@ -188,11 +188,7 @@ export default function DashboardPage() {
   const recentSalesDescription = React.useMemo(() => {
     if (!date?.from) return "";
     const toDate = date.to ?? date.from;
-    const translationFunc = translations.recentSalesDesc[language];
-    if (typeof translationFunc === 'function') {
-      return translationFunc(filteredOrders.length, formatDate(date.from), formatDate(toDate));
-    }
-    return '';
+    return t(translations.recentSalesDesc, filteredOrders.length, formatDate(date.from), formatDate(toDate));
   }, [filteredOrders, date, language, t]);
 
   const handleDownload = () => {
@@ -255,5 +251,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
