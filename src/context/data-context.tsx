@@ -13,6 +13,7 @@ interface DataContextType {
   orders: Order[];
   addProduct: (product: Product) => void;
   addOrder: (order: Order) => void;
+  updateOrder: (orderId: string, newPaymentAmount: number) => void;
   clearAllData: () => void;
 }
 
@@ -26,18 +27,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     try {
       const storedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-      if (storedProducts) {
-        setProducts(JSON.parse(storedProducts));
-      } else {
-        setProducts(initialProducts);
-      }
-
       const storedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
-      if (storedOrders) {
-        setOrders(JSON.parse(storedOrders));
-      } else {
-        setOrders(generateInitialOrders(initialProducts));
-      }
+      
+      const productsToLoad = storedProducts ? JSON.parse(storedProducts) : initialProducts;
+      const ordersToLoad = storedOrders ? JSON.parse(storedOrders) : generateInitialOrders(productsToLoad);
+      
+      setProducts(productsToLoad);
+      setOrders(ordersToLoad);
+
     } catch (error) {
       console.error("Failed to parse data from localStorage", error);
       setProducts(initialProducts);
@@ -75,18 +72,37 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setOrders(prev => [order, ...prev]);
   };
   
+  const updateOrder = (orderId: string, newPaymentAmount: number) => {
+    setOrders(prevOrders => 
+        prevOrders.map(order => {
+            if (order.id === orderId) {
+                const newAmountPaid = order.amountPaid + newPaymentAmount;
+                const newAmountDue = order.total - newAmountPaid;
+                return {
+                    ...order,
+                    amountPaid: newAmountPaid,
+                    amountDue: newAmountDue,
+                    paymentStatus: newAmountDue <= 0 ? 'paid' : 'due',
+                };
+            }
+            return order;
+        })
+    );
+  };
+
   const clearAllData = () => {
+    setProducts(initialProducts);
+    setOrders(generateInitialOrders(initialProducts));
+    
     // Clear all relevant keys from local storage
     localStorage.removeItem(PRODUCTS_STORAGE_KEY);
     localStorage.removeItem(ORDERS_STORAGE_KEY);
     localStorage.removeItem('grocerEaseSettings');
-    
-    // Reload the page to force a full state reset from initial values
-    window.location.reload();
+    localStorage.removeItem('grocerEaseLanguage');
   }
 
   return (
-    <DataContext.Provider value={{ products, orders, addProduct, addOrder, clearAllData }}>
+    <DataContext.Provider value={{ products, orders, addProduct, addOrder, updateOrder, clearAllData }}>
       {!isInitialLoad && children}
     </DataContext.Provider>
   );

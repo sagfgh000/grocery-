@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState, useMemo } from "react";
 import {
     Table,
     TableBody,
@@ -12,12 +13,15 @@ import {
   import { Badge } from "@/components/ui/badge";
   import { useData } from "@/context/data-context";
   import { useLanguage } from "@/context/language-context";
-  import { useMemo } from "react";
   import { parseISO } from "date-fns";
+  import { type Order } from "@/lib/types";
+  import { UpdatePaymentDialog } from "@/components/orders/update-payment-dialog";
   
   export default function OrdersPage() {
     const { t } = useLanguage();
-    const { orders } = useData();
+    const { orders, updateOrder } = useData();
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    
     const translations = {
         orders: { en: "Orders", bn: "অর্ডার" },
         orderId: { en: "Order ID", bn: "অর্ডার আইডি" },
@@ -38,10 +42,29 @@ import {
 
     const getPaymentStatusTranslation = (status: 'paid' | 'due') => {
         const statusTranslations = {
-            paid: translations.paid,
-            due: translations.due,
+            paid: t({ en: "Paid", bn: "পরিশোধিত" }),
+            due: t({ en: "Due", bn: "বকেয়া" }),
         };
-        return t(statusTranslations[status] || { en: status, bn: status });
+        return statusTranslations[status] || status;
+    }
+    
+    const handleOrderSelect = (order: Order) => {
+        setSelectedOrder(order);
+    }
+
+    const handlePaymentUpdate = (orderId: string, newPayment: number) => {
+        updateOrder(orderId, newPayment);
+        const updatedOrder = orders.find(o => o.id === orderId);
+        if(updatedOrder) {
+            const newAmountPaid = updatedOrder.amountPaid + newPayment;
+            const newAmountDue = updatedOrder.total - newAmountPaid;
+            setSelectedOrder({
+                ...updatedOrder,
+                amountPaid: newAmountPaid,
+                amountDue: newAmountDue,
+                paymentStatus: newAmountDue <= 0 ? 'paid' : 'due',
+            });
+        }
     }
 
     return (
@@ -64,7 +87,7 @@ import {
                     </TableHeader>
                     <TableBody>
                         {parsedOrders.map((order) => (
-                            <TableRow key={order.id}>
+                            <TableRow key={order.id} onClick={() => handleOrderSelect(order)} className="cursor-pointer">
                                 <TableCell className="font-medium sticky left-0 bg-card whitespace-nowrap">{order.id}</TableCell>
                                 <TableCell className="whitespace-nowrap">{order.createdAt.toLocaleDateString('bn-BD')}</TableCell>
                                 <TableCell>
@@ -85,6 +108,14 @@ import {
                 </Table>
               </div>
             </div>
+            {selectedOrder && (
+                <UpdatePaymentDialog
+                    isOpen={!!selectedOrder}
+                    onOpenChange={() => setSelectedOrder(null)}
+                    order={selectedOrder}
+                    onUpdatePayment={handlePaymentUpdate}
+                />
+            )}
         </div>
     )
   }
