@@ -211,11 +211,11 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
         <h2 className="text-3xl font-bold tracking-tight font-headline">{t(translations.dashboard)}</h2>
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <CalendarDateRangePicker date={date} setDate={setDate} />
-          <Button onClick={handleDownload}><Download className="mr-2" />{t(translations.download)}</Button>
+          <Button onClick={handleDownload} className="w-full sm:w-auto"><Download className="mr-2" />{t(translations.download)}</Button>
         </div>
       </div>
       <div ref={dashboardRef} className="p-4 bg-background">

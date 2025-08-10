@@ -24,14 +24,22 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    const storedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
-    if (storedSettings) {
-      setSettings(JSON.parse(storedSettings));
+    try {
+      const storedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      if (storedSettings) {
+        setSettings(JSON.parse(storedSettings));
+      }
+    } catch (error) {
+      console.error("Failed to parse settings from localStorage", error);
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    try {
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    } catch (error) {
+      console.error("Failed to save settings to localStorage", error);
+    }
   }, [settings]);
 
   return (
