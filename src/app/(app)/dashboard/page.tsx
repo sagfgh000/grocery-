@@ -24,11 +24,13 @@ import { subDays, startOfMonth, endOfMonth, format, eachDayOfInterval, isWithinI
 import { bn, enUS } from "date-fns/locale";
 import { useData } from "@/context/data-context";
 import { Order } from "@/lib/types";
+import { useSettings } from "@/context/settings-context";
 
 export default function DashboardPage() {
   const { language, t } = useLanguage();
   const dashboardRef = React.useRef(null);
   const { products, orders } = useData();
+  const { settings } = useSettings();
   
   const [date, setDate] = React.useState<DateRange | undefined>();
 
@@ -69,6 +71,13 @@ export default function DashboardPage() {
     totalOrders: { en: "Total Orders", bn: "মোট অর্ডার" },
     totalItemsSold: { en: "Total Items Sold", bn: "বিক্রি হওয়া মোট আইটেম" },
     totalDueAmount: { en: "Total Due Amount", bn: "মোট বকেয়া পরিমাণ" },
+    orderId: { en: "Order ID", bn: "অর্ডার আইডি" },
+    orderDate: { en: "Date", bn: "তারিখ" },
+    subtotal: { en: "Subtotal", bn: "উপমোট" },
+    tax: { en: "Tax", bn: "কর" },
+    total: { en: "Total", bn: "মোট" },
+    amountPaid: { en: "Paid", bn: "পরিশোধিত" },
+    amountDue: { en: "Due", bn: "বকেয়া" },
   };
 
   const formatCurrency = (amount: number) => {
@@ -201,33 +210,118 @@ export default function DashboardPage() {
 
   const handleDownload = () => {
     if (!date?.from || filteredOrders.length === 0) {
-      alert("Please select a date range with orders to generate a report.");
-      return;
+        alert("Please select a date range with orders to generate a report.");
+        return;
     }
 
     const doc = new jsPDF();
     const toDate = date.to ?? date.from;
+    let yPosition = 15;
+
+    const addText = (text: string, x: number, y: number, options?: any) => {
+        doc.text(text, x, y, options);
+        return y + 5;
+    };
+    
+    const checkPageBreak = (y: number) => {
+        if (y > 280) {
+            doc.addPage();
+            return 15;
+        }
+        return y;
+    };
 
     // Report Header
-    doc.setFontSize(18);
-    doc.text(t(translations.salesReport), 14, 22);
-    doc.setFontSize(11);
-    doc.text(`${t(translations.reportFor)}: ${formatDate(date.from)} ${t(translations.to)} ${formatDate(toDate)}`, 14, 30);
-
-    // Summary Section
+    doc.setFontSize(16);
+    doc.text(t(translations.salesReport), 105, yPosition, { align: 'center' });
+    yPosition += 8;
+    doc.setFontSize(10);
+    doc.text(`${t(translations.reportFor)}: ${formatDate(date.from)} ${t(translations.to)} ${formatDate(toDate)}`, 105, yPosition, { align: 'center' });
+    yPosition += 10;
+    
+    // Global Summary
     const totalRevenue = filteredOrders.reduce((sum, order) => sum + order.total, 0);
     const totalProfit = filteredOrders.reduce((sum, order) => sum + order.totalProfit, 0);
     const totalItemsSold = filteredOrders.reduce((sum, order) => sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
     const totalDue = filteredOrders.reduce((sum, order) => sum + order.amountDue, 0);
+    
+    doc.setFontSize(12);
+    yPosition = addText(t(translations.summary), 14, yPosition);
+    yPosition += 2;
+    doc.setFontSize(10);
+    yPosition = addText(`${t(translations.totalRevenue)}: ${formatCurrency(totalRevenue)}`, 14, yPosition);
+    yPosition = addText(`${t(translations.totalProfit)}: ${formatCurrency(totalProfit)}`, 14, yPosition);
+    yPosition = addText(`${t(translations.totalOrders)}: ${filteredOrders.length}`, 14, yPosition);
+    yPosition = addText(`${t(translations.totalItemsSold)}: ${totalItemsSold.toFixed(2)}`, 14, yPosition);
+    yPosition = addText(`${t(translations.totalDueAmount)}: ${formatCurrency(totalDue)}`, 14, yPosition);
+    yPosition += 5;
 
-    doc.setFontSize(14);
-    doc.text(t(translations.summary), 14, 45);
-    doc.setFontSize(11);
-    doc.text(`${t(translations.totalRevenue)}: ${formatCurrency(totalRevenue)}`, 14, 55);
-    doc.text(`${t(translations.totalProfit)}: ${formatCurrency(totalProfit)}`, 14, 61);
-    doc.text(`${t(translations.totalOrders)}: ${filteredOrders.length}`, 14, 67);
-    doc.text(`${t(translations.totalItemsSold)}: ${totalItemsSold.toFixed(2)}`, 14, 73);
-    doc.text(`${t(translations.totalDueAmount)}: ${formatCurrency(totalDue)}`, 14, 79);
+
+    // Loop through each order and print its details
+    filteredOrders.forEach((order, index) => {
+        const orderDate = parseISO(order.createdAt as unknown as string);
+        
+        yPosition = checkPageBreak(yPosition + 10);
+        doc.setLineWidth(0.5);
+        doc.line(14, yPosition - 5, 196, yPosition - 5);
+        
+        doc.setFontSize(11);
+        yPosition = addText(`${t(translations.orderId)}: ${order.id}`, 14, yPosition);
+        yPosition = addText(`${t(translations.orderDate)}: ${orderDate.toLocaleString('bn-BD')}`, 14, yPosition);
+        yPosition += 3;
+
+        // Items Header
+        doc.setFont(undefined, 'bold');
+        addText(t({ en: 'Item', bn: 'আইটেম'}), 14, yPosition);
+        addText(t({ en: 'Qty', bn: 'পরিমাণ'}), 120, yPosition);
+        addText(t({ en: 'Price', bn: 'মূল্য'}), 150, yPosition);
+        yPosition = addText(t({ en: 'Subtotal', bn: 'উপমোট'}), 175, yPosition);
+        doc.setFont(undefined, 'normal');
+
+        // Items
+        order.items.forEach(item => {
+            yPosition = checkPageBreak(yPosition);
+            const itemName = language === 'bn' ? item.product.name_bn : item.product.name_en;
+            const quantityText = `${item.quantity} ${item.product.unit}`;
+            const priceText = formatCurrency(item.product.selling_price);
+            const subtotalText = formatCurrency(item.subtotal);
+            addText(itemName.substring(0, 40), 14, yPosition);
+            addText(quantityText, 120, yPosition);
+            addText(priceText, 150, yPosition);
+            yPosition = addText(subtotalText, 175, yPosition);
+        });
+
+        yPosition += 3;
+        doc.setLineWidth(0.1);
+        doc.line(120, yPosition - 2, 196, yPosition - 2);
+
+        // Totals for order
+        yPosition = checkPageBreak(yPosition);
+        yPosition = addText(`${t(translations.subtotal)}:`, 150, yPosition);
+        doc.text(formatCurrency(order.subtotal), 196, yPosition - 5, { align: 'right' });
+        
+        yPosition = checkPageBreak(yPosition);
+        yPosition = addText(`${t(translations.tax)}:`, 150, yPosition);
+        doc.text(formatCurrency(order.tax), 196, yPosition - 5, { align: 'right' });
+
+        doc.setFont(undefined, 'bold');
+        yPosition = checkPageBreak(yPosition);
+        yPosition = addText(`${t(translations.total)}:`, 150, yPosition);
+        doc.text(formatCurrency(order.total), 196, yPosition - 5, { align: 'right' });
+        doc.setFont(undefined, 'normal');
+        
+        yPosition = checkPageBreak(yPosition);
+        yPosition = addText(`${t(translations.amountPaid)}:`, 150, yPosition);
+        doc.text(formatCurrency(order.amountPaid), 196, yPosition - 5, { align: 'right' });
+
+        if (order.amountDue > 0) {
+            doc.setFont(undefined, 'bold');
+            yPosition = checkPageBreak(yPosition);
+            yPosition = addText(`${t(translations.amountDue)}:`, 150, yPosition);
+            doc.text(formatCurrency(order.amountDue), 196, yPosition - 5, { align: 'right' });
+            doc.setFont(undefined, 'normal');
+        }
+    });
 
     doc.save(`sales-report-${format(date.from, 'yyyy-MM-dd')}-to-${format(toDate, 'yyyy-MM-dd')}.pdf`);
   };
