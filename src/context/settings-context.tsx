@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useState, useContext, type ReactNode, useEffect } from 'react';
@@ -18,7 +19,7 @@ const SETTINGS_STORAGE_KEY = 'grocerEaseSettings';
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<Settings>({
-    shopName: 'GrocerEase',
+    shopName: 'Yea Ali Kaddo Bandar',
     shopAddress: '123 Fresh St, Farmville, USA',
   });
 
