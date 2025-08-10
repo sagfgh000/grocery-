@@ -76,10 +76,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const clearAllData = () => {
+    // Clear all relevant keys from local storage
     localStorage.removeItem(PRODUCTS_STORAGE_KEY);
     localStorage.removeItem(ORDERS_STORAGE_KEY);
-    localStorage.removeItem('grocerEaseSettings'); // Also clear settings
-    window.location.reload(); // Reload to apply changes and clear state
+    localStorage.removeItem('grocerEaseSettings');
+    
+    // Reload the page to force a full state reset from initial values
+    window.location.reload();
   }
 
   return (
